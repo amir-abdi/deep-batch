@@ -87,3 +87,19 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+#pycharm
+*.pyc
+
+#caffe
+*.prototxt
+*.png
+*.state
+*.caffemodel
+*.npy
+
+
+#mine
+sandbox
+
+
