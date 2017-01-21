@@ -2,15 +2,12 @@
 import sys
 
 print sys.path
-import directory_settings as s
 from data_handler import data_handler
 import optunity.solvers.solver_registry
 import json
 
 # import caffe nets
-from models.echo_x_net.echo_net_x import EchoXNetModel
-from models.demo_net.demo_net import DemoNetModel
-
+from nets.echo_net_x import EchoXNetModel
 
 if __name__ == "__main__ PSO":
     data_folder = '/home/amir/echoData/AP4/'

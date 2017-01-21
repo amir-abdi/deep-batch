@@ -5,7 +5,9 @@ from caffe import layers as L
 from caffe import params as P
 
 
-def conv_relu(bottom, numout, ks=3, stride=1, pad=0):
+def conv_relu(bottom, numout, ks=3, stride=1, pad=0, same_size=False):
+    if same_size:
+        pad = int(ks / 2)
     conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
                          num_output=numout, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],

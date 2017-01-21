@@ -8,6 +8,8 @@ import directory_settings as s
 import constants as c
 import myUtils
 
+from layers import *
+
 # sys.path.append(s.caffe_root + 'python')
 import caffe
 from caffe import layers as L
@@ -33,7 +35,7 @@ class RootCaffeModel:
         self.meta_data = None
         self.external_meta_data = external_meta_data
         self.set_directories()
-        self.model(external_meta_data)
+        self.model()
         self.data_handler = data_handler.data_handler(self.meta_data['label_type'], self.meta_data['load_to_memory'])
         self.solver_prototxt()
 
@@ -48,15 +50,16 @@ class RootCaffeModel:
         if not os.path.exists(self.snapshot_dir):
             os.makedirs(self.snapshot_dir)
 
-    def model(self, input_meta_data):
+    def model(self):
         workdir = self.model_dir
         with open(osp.join(workdir, 'trainnet.prototxt'), 'w') as f:
             n = self.initialize_net()
-            f.write(self.net(n, 'train'))
+            netstr = self.finalize_net(n, 'train')
+            f.write(netstr)
         with open(osp.join(workdir, 'valnet.prototxt'), 'w') as f:
             n = self.initialize_net()
-            f.write(self.net(n, 'valid'))
-
+            netstr = self.finalize_net(n, 'valid')
+            f.write(netstr)
 
     def get_meta_data(self):
         if self.meta_data is None:
@@ -239,6 +242,26 @@ class RootCaffeModel:
         # this is just to fill the space
         n.data, n.label = L.MemoryData(batch_size=1, height=1, width=1, channels=1, ntop=2)
         return n
+
+    def finalize_net(self, n, train_valid):
+        meta_data = self.get_meta_data()
+        prototxt_str = str(n.to_proto())
+
+        if train_valid == 'train':
+            prototxt_str = data_label(prototxt_str,
+                                      meta_data['batch_size'],
+                                      meta_data['channels'],
+                                      meta_data['im_height'],
+                                      meta_data['im_width'],
+                                      meta_data['label_type'])
+        elif train_valid == 'valid':
+            prototxt_str = data(prototxt_str,
+                                meta_data['batch_size'],
+                                meta_data['channels'],
+                                meta_data['im_height'],
+                                meta_data['im_width'],
+                                meta_data['label_type'])
+        return prototxt_str
 
     def initialize_solver(self, solver_type):
         print "initializing solver..."

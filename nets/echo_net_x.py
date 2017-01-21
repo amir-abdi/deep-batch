@@ -1,15 +1,12 @@
-from models.layers import *
-import caffe
-from caffe import layers as L
-from caffe import params as P
-import os
-from root_caffe_model import RootCaffeModel
-import numpy as np
-import os.path as osp
 import math
-import myUtils
-import constants as c
+
+import numpy as np
 from caffe import layers as L
+
+import constants as c
+from layers import *
+from root_caffe_model import RootCaffeModel
+
 
 class EchoXNetModel(RootCaffeModel):
     def __init__(self, external_meta_data, data_engine=None):
@@ -57,22 +54,7 @@ class EchoXNetModel(RootCaffeModel):
         if train_valid == 'train':
             n.loss = L.EuclideanLoss(n.output, n.label)
 
-        proto = str(n.to_proto());
-        if train_valid == 'train':
-            proto = data_label(proto,
-                               meta_data['batch_size'],
-                               meta_data['channels'],
-                               meta_data['im_height'],
-                               meta_data['im_width'],
-                               meta_data['label_type'])
-        elif train_valid == 'valid':
-            proto = data(proto,
-                         meta_data['batch_size'],
-                         meta_data['channels'],
-                         meta_data['im_height'],
-                         meta_data['im_width'],
-                         meta_data['label_type'])
-        return proto
+        return n
 
     def create_meta_data(self):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration

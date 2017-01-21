@@ -1,14 +1,12 @@
-from models.layers import *
-import caffe
-from caffe import layers as L
-from caffe import params as P
-from root_caffe_model import RootCaffeModel
-import numpy as np
-import os.path as osp
 import math
-import myUtils
+
+import numpy as np
+from caffe import layers as L
+
 import constants as c
-import matplotlib.pyplot as plt
+from layers import *
+from root_caffe_model import RootCaffeModel
+
 
 class DemoNetModel(RootCaffeModel):
     def __init__(self, external_params=None):
