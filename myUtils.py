@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     filter = '1,1'
     for file in files:
-        print file
+        print(file)
         if filter in file:
             t = np.load(file)
             plot_show(t, True)

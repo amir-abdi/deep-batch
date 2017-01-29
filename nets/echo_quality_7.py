@@ -1,11 +1,12 @@
 import math
+# from __builtin__ import setattr
 
 import numpy as np
 from caffe import layers as L
 
 import constants as c
 from layers import *
-from root_caffe_model import RootCaffeModel
+from RootCaffeModel import RootCaffeModel
 
 num_views = 7
 
@@ -25,14 +26,26 @@ class EchoNet7(RootCaffeModel):
         #view specific layers
         #todo: two ways to do this: share weights, or what I am doing below!
         for i in range(num_views):
-            n.conv4, n.relu4 = conv_relu(n.pool3, 40, 5, 1, same_size=True)
-            n.pool4 = max_pool(n.relu4, 3, 2)
-            n.conv5, n.relu5 = conv_relu(n.pool4, 50, 3, 1, same_size=True)
-            n.pool5 = max_pool(n.relu5, 3, 2)
-            n.output, n.relu_fc1 = fc_relu(n.pool5, 512)
-            # n.output = L.Dropout(n.relu_fc1, in_place=True, dropout_param=dict(dropout_ratio=0.5))
+            setattr(n, 'conv4_'+str(i), conv(n.pool3, 40, 5, 1, same_size=True))
+            setattr(n, 'relu4_'+str(i), L.ReLU(getattr(n, 'conv4_'+str(i)), in_place=True))
+            setattr(n, 'pool4_' + str(i), max_pool(getattr(n, 'relu4_'+str(i)), 3, 2))
+
+            setattr(n, 'conv5_' + str(i), conv(getattr(n, 'pool4_'+str(i)), 50, 3, 1, same_size=True))
+            setattr(n, 'relu5_' + str(i), L.ReLU(getattr(n, 'conv5_' + str(i)), in_place=True))
+            setattr(n, 'pool5_' + str(i), max_pool(getattr(n, 'relu5_' + str(i)), 3, 2))
+
+            setattr(n, 'fc1_' + str(i), fc(getattr(n, 'pool5_'+str(i)), 512))
+            setattr(n, 'relufc1_' + str(i), L.ReLU(getattr(n, 'fc1_' + str(i)), in_place=True))
+            setattr(n, 'output_' + str(i), fc(getattr(n, 'relufc1_' + str(i)), 1))
+
+            # # conv4 , n.relu4 = conv_relu(n.pool3, 40, 5, 1, same_size=True)
+            # n.pool4 = max_pool(n.relu4, 3, 2)
+            # n.conv5, n.relu5 = conv_relu(n.pool4, 50, 3, 1, same_size=True)
+            # n.pool5 = max_pool(n.relu5, 3, 2)
+            # n.output = fc(n.pool5, 512)
+            # # n.output = L.Dropout(n.relu_fc1, in_place=True, dropout_param=dict(dropout_ratio=0.5))
             if train_valid == 'train':
-                n.loss = L.EuclideanLoss(n.output, n.label)
+                setattr(n, 'loss_' + str(i), L.EuclideanLoss(getattr(n, 'output_' + str(i)), n.label))
         return n
 
     def create_meta_data(self):
@@ -41,8 +54,8 @@ class EchoNet7(RootCaffeModel):
             'model_variant': 'DemoNet',
             'batch_size': 3,
             'channels': 1,
-            'im_width': 267,
-            'im_height': 267,
+            'crop_width': 267,
+            'crop_height': 267,
             'base_lr': '0.0002',
             'display': '100',
             'type': '\"AdaGrad\"',
@@ -69,6 +82,8 @@ class EchoNet7(RootCaffeModel):
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
             'label_type': 'single_value',  # 'single_value', 'mask_image'
             'display_iter': 1,
+
+            # data handler parameters
             'resize_width': 400,
             'resize_height': 267,
             'random_translate_std_ratio': 20,
@@ -77,19 +92,20 @@ class EchoNet7(RootCaffeModel):
             'split_ratio': 0.1,  # set to 0 if not splitting train and valid
             'load_to_memory': True,
             'subtract_mean': False,
-            'image_format': '.jpg',
+            'file_format': 'mat',
+            'delimiter': ',',
 
             # end of training parameters
             'max_epoch': 60,
             'min_epoch': 30,
             'terminate_if_not_improved_epoch': 5,
             'averaging_window': 15
+
         }
         return m
 
     def train_validate(self):
         meta_data = self.meta_data
-        self.training_state = self.init_training_state()
         solver = self.get_solver()
 
         batch_size = meta_data['batch_size']
@@ -98,7 +114,7 @@ class EchoNet7(RootCaffeModel):
         self.total_training_iteration = self.training_state['total_iterations']
 
         while not self.is_end_training():
-            print "=" * 80
+            print('=' * 80)
             self.current_epoch_history = np.zeros(4)
 
             #training epoch loop
@@ -109,8 +125,8 @@ class EchoNet7(RootCaffeModel):
                 x, y = self.data_handler.preprocess(data_batch=x, label_batch=y,
                                                     rotate_degree=meta_data['random_rotate_degree'],
                                                     translate_std_ratio=meta_data['random_translate_std_ratio'],
-                                                    crop_width=meta_data['im_width'],
-                                                    crop_height=meta_data['im_height'],
+                                                    crop_width=meta_data['crop_width'],
+                                                    crop_height=meta_data['crop_height'],
                                                     resize_width=meta_data['resize_width'],
                                                     resize_height=meta_data['resize_height'],
                                                     normalize_to_1_scale=False)
@@ -132,8 +148,8 @@ class EchoNet7(RootCaffeModel):
                 for validi in range(nb_batches_valid):
                     x, y = self.data_handler.get_data_batch_iterative(batch_size=batch_size, train_valid='valid')
                     x, y = self.data_handler.preprocess(data_batch=x, label_batch=y,
-                                                        crop_width=meta_data['im_width'],
-                                                        crop_height=meta_data['im_height'],
+                                                        crop_width=meta_data['crop_width'],
+                                                        crop_height=meta_data['crop_height'],
                                                         resize_width=meta_data['resize_width'],
                                                         resize_height=meta_data['resize_height'],
                                                         normalize_to_1_scale=False)
@@ -149,10 +165,10 @@ class EchoNet7(RootCaffeModel):
                     self.current_epoch_history[c.VAL_LOSS] += (loss_batch / nb_batches_valid)
                     self.print_valid_iteration(validi, loss_batch)
 
-                print "End of Validation\n", "-" * 80
+                print("End of Validation\n", "-" * 80)
                 self.update_training_state_validation()
 
-            print "End of Training Epoch\n", "-" * 80
+            print ("End of Training Epoch\n", "-" * 80)
             self.update_training_state_training()
             self.snapshot_handler(solver, self.training_state)  # needs to be before epoch update to keep track of 'best_validation'
 

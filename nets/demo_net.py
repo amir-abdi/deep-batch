@@ -5,7 +5,7 @@ from caffe import layers as L
 
 import constants as c
 from layers import *
-from root_caffe_model import RootCaffeModel
+from RootCaffeModel import RootCaffeModel
 
 
 class DemoNetModel(RootCaffeModel):

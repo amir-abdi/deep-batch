@@ -15,11 +15,13 @@ def conv_relu(bottom, numout, ks=3, stride=1, pad=0, same_size=False):
     return conv, L.ReLU(conv, in_place=True)
 
 
-def conv(bottom, numout, ks=3, stride=1, pad=0):
+def conv(bottom, numout, ks=3, stride=1, pad=0, same_size=False):
+    if same_size:
+        pad = int(ks / 2)
     conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
                          num_output=numout, pad=pad,
                          param=[dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)],
-                         weight_filler=dict(type='xavier'))
+                         weight_filler=dict(type='gaussian', std=0.01), bias_filler=dict(type='constant', value=0))
     return conv
 
 

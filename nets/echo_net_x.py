@@ -5,7 +5,7 @@ from caffe import layers as L
 
 import constants as c
 from layers import *
-from root_caffe_model import RootCaffeModel
+from RootCaffeModel import RootCaffeModel
 
 
 class EchoXNetModel(RootCaffeModel):
@@ -96,6 +96,7 @@ class EchoXNetModel(RootCaffeModel):
             'load_to_memory': False,
             'subtract_mean': False,
             'image_format': '.jpg',
+            'delimiter': ' ',
 
             # end of training parameters
             'max_epoch': 200,

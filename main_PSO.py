@@ -2,7 +2,7 @@
 import sys
 
 print sys.path
-from data_handler import data_handler
+from datahandler import DataHandler
 import optunity.solvers.solver_registry
 import json
 
@@ -16,7 +16,7 @@ if __name__ == "__main__ PSO":
     list_test = data_folder + 'list_test.txt'
 
     # dataH_temp = data_handler('single_value', True)
-    x, y = data_handler.read_data_from_list_file(list_file=list_train, image_format='.jpg', load_to_memory=True)
+    x, y = DataHandler.read_data_from_list_file(list_file=list_train, file_format='.jpg', load_to_memory=True)
 
     num_folds = 3
     @optunity.cross_validated(x=x, y=y, num_folds=num_folds)
