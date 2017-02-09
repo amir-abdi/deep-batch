@@ -173,7 +173,7 @@ class EchoXNetModel(RootCaffeModel):
 
             self.training_state['train_acc'] = self.current_epoch_history[c.TRAIN_ACCURACY]
             self.training_state['train_loss'] = self.current_epoch_history[c.TRAIN_LOSS]
-            self.save_plot_history(self.current_epoch_history)
+            self.save_show_plot_history(self.current_epoch_history)
             self.save_state(self.training_state)
 
             self.print_current_epoch_history()

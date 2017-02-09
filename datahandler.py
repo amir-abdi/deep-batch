@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 import lmdb
 import cv2
 import scipy.io as sio
+import gc
 
 class DataHandler:
     def __init__(self):
@@ -17,6 +18,7 @@ class DataHandler:
         self.train_iterator = 0
         self.valid_iterator = 0
         self.view_iterator = 0
+        self.number_of_frames = 20
 
     def preprocess(self, data_batch, label_batch, rotate_degree=None, translate_std_ratio=None,
                    crop_width=None, crop_height=None, resize_width=None, resize_height=None,
@@ -39,13 +41,15 @@ class DataHandler:
         if normalize_to_1_scale:
             data_batch = [img / 255. for img in data_batch]
         # return self.convert_to_npArray(data_batch, label_batch, scale_to_1=normalize_to_1_scale)
-        if add_unit_channel:
+
+        data_batch = np.asarray(data_batch)
+
+        if add_unit_channel and data_batch.ndim != 4:
             data_batch = self.add_unit_channel(data_batch)
         return (data_batch, label_batch)
 
     def add_unit_channel(self, imgs):
-        imgs = np.asarray(imgs)
-        return imgs.reshape(imgs.shape[0], 1, imgs.shape[1], imgs.shape[2])
+        return imgs.reshape(imgs.shape[0], imgs.shape[1], imgs.shape[2], self.number_of_frames)
 
     def _read_train_valid_from_list_file(self, train_list, valid_list):
         load_to_memory = self.meta_data['load_to_memory']
@@ -206,9 +210,13 @@ class DataHandler:
                 if os.path.isfile(file_dir):
                     if load_to_memory:
                         if file_format == 'mat':
+                            # matfile = sio.loadmat(file_dir)
+                            # dicomImage = matfile['Patient']['DicomImage']
+                            # images.append(dicomImage)
+
                             matfile = sio.loadmat(file_dir)
-                            dicomImage = matfile['Patient']['DicomImage']
-                            images.append(dicomImage)
+                            cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
+                            images.append(cine[:, :, :self.number_of_frames])  # todo: read entire cine
                         else:
                             images.append(Image.open(file_dir))
                             images[-1].load()
@@ -254,6 +262,9 @@ class DataHandler:
         valid_size = sum(len(l) for l in self.valid_labels)
         return train_size, valid_size
 
+    def get_num_views(self):
+        return len(self.train_labels)
+
     def get_data_batch_random(self, batch_size, train_valid='train', method='uniform', view=None):
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
@@ -285,17 +296,20 @@ class DataHandler:
         batch_labels = []
         if load_to_memory:
             batch_images = [images[i] for i in selected_indices]
-            batch_labels = [labels[i] for i in selected_indices]
+            batch_labels = [labels[i][main_label_index] for i in selected_indices]
         else:
             # images = [Image.open(src_images[i]).load() for i in selected_indices]
             for i in selected_indices:
                 if self.meta_data['file_format'] == 'image':
-                    batch_images.append(Image.open(images[i]))
-                    batch_images[-1].load()
+                    im = cv2.imread(images[i], 0)
+                    batch_images.append(im)
+                    # batch_images.append(Image.open(images[i]))
+                    # batch_images[-1].load()
                 elif self.meta_data['file_format'] == 'mat':
                     matfile = sio.loadmat(images[i])
                     cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
-                    batch_images.append(cine[:, :, 10])  # todo: read entire cine
+                    batch_images.append(cine[:, :, :self.number_of_frames])  # todo: read entire cine
+                    gc.collect()
             if label_type == 'single_value':
                 batch_labels = [labels[i][main_label_index] for i in selected_indices]
             elif label_type == 'mask_image':
@@ -337,7 +351,10 @@ class DataHandler:
 
     def translate_random(self, imgs, labels, std_ratio=20):
         label_type = self.meta_data['label_type']
-        origh, origw = imgs[0].shape
+        if self.number_of_frames != 1:
+            origh, origw, num_frames = imgs[0].shape
+        else:
+            origh, origw = imgs[0].shape
 
         for i in range(len(imgs)):
             transX = np.random.normal(origw / 2, origw/std_ratio)
@@ -383,7 +400,14 @@ class DataHandler:
 
     def crop_middle(self, imgs, labels, crop_width, crop_height):
         label_type = self.meta_data['label_type']
-        origh, origw = imgs[0].shape
+        if self.number_of_frames != 1:
+            origh, origw, num_frames = imgs[0].shape
+        else:
+            origh, origw = imgs[0].shape
+
+        if [origw, origh] == [crop_width, crop_height]:
+            return imgs, labels
+
         middlew = origw//2
         middleh = origh//2
 
@@ -409,7 +433,10 @@ class DataHandler:
 
     def rotate_random(self, imgs, labels, rotation_std):
         label_type = self.meta_data['label_type']
-        origh, origw = imgs[0].shape
+        if self.number_of_frames != 1:
+            origh, origw, num_frames = imgs[0].shape
+        else:
+            origh, origw = imgs[0].shape
 
         #todo: added this during run. make sure it works!
         for i in range(len(imgs)):
@@ -449,7 +476,11 @@ class DataHandler:
 
     def resize(self, imgs, labels, width, height):
         label_type = self.meta_data['label_type']
-        origh, origw = imgs[0].shape
+        if self.number_of_frames != 1:
+            origh, origw, num_frames = imgs[0].shape
+        else:
+            origh, origw = imgs[0].shape
+
         if [origw, origh] == [width, height]:
             return imgs, labels
 

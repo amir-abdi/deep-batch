@@ -126,19 +126,6 @@ class RootCaffeModel(RootModel):
             return False
         return False
 
-    def snapshot_handler(self, solver, training_status):
-        meta = self.meta_data
-        if 'best' in meta['snapshot_approach'] and training_status['best_validation_epoch'] == \
-                                                             training_status['epoch']:
-            self.write_snapshot(solver, '_best')
-        if 'step' in meta['snapshot_approach'] and self.epoch % meta['snapshot_epochs'] == 0:
-            self.write_snapshot(solver, '_step')
-        if 'last' in meta['snapshot_approach']:
-            self.write_snapshot(solver, '_last')
-
-        if 'step' in meta['snapshot_approach'] and self.epoch % meta['caffe_solver_state_epochs'] == 0:
-            self.write_caffe_solver_state(solver)
-
     def write_snapshot(self, solver, type_str):
         solver.net.save(str(self.write_filename + type_str + '.caffemodel'))
         print('Wrote snapshot to: {:s}.caffemodel'.format(self.write_filename))
@@ -167,6 +154,7 @@ class RootCaffeModel(RootModel):
 
     def set_solver(self, solver_type='SGD', snapshot_weight=None,
                    snapshot_state=None, snapshot_history=None):
+        self.model()
         self.solver = self.initialize_solver(solver_type)
         if snapshot_weight is not None:
             solver = self.load_snapshot(snapshot_weight, self.solver)

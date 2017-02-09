@@ -18,11 +18,10 @@ class RootModel:
         self.meta_data = None
         self.get_meta_data()
 
-        self.model()
         self.data_handler = DataHandler()
         self.solver()
 
-        self.training_state = self.init_training_state()
+        self.init_training_state()
 
     def set_directories(self):
         self.model_dir = s.framework_root + 'models/' + self.__class__.__name__ + '/'
@@ -45,6 +44,7 @@ class RootModel:
         train_size, valid_size = self.data_handler.get_dataset_size()
         self.nb_batches_train = int(np.round(train_size / batch_size))
         self.nb_batches_valid = int(np.round(valid_size / batch_size))
+        self.number_of_views = self.data_handler.get_num_views()
 
     def get_meta_data(self):
         if self.meta_data is None:
@@ -78,8 +78,10 @@ class RootModel:
         self.training_history = []
         self.end_criteria_counter = 0  # todo: this has to move into some part of history or log
         self.write_filename = osp.join(self.snapshot_dir, self.meta_data['snapshot_str'])
-        training_data = {'total_iterations': 0, 'best_validation_acc': -np.inf,
-                         'train_acc': -np.inf, 'train_loss': np.inf, 'validation_loss': np.inf, 'validation_acc': -np.inf}
+        self.training_state = {'total_iterations': 0, 'best_validation_acc': -np.inf,
+                               'train_acc': -np.inf, 'train_loss': np.inf, 'validation_loss': np.inf,
+                               'validation_acc': -np.inf,
+                               'best_validation_epoch': 0}
         plt.close()
 
         self.window_w = self.meta_data['averaging_window'] if 'averaging_window' in self.meta_data else None
@@ -87,8 +89,6 @@ class RootModel:
             if 'terminate_if_not_improved_epoch' in self.meta_data else None
         self.min_epoch = self.meta_data['min_epoch'] if 'min_epoch' in self.meta_data else 0
         self.max_epoch = self.meta_data['max_epoch'] if 'max_epoch' in self.meta_data else int('inf')
-
-        return training_data
 
     def is_end_training(self):
         max_epoch = self.max_epoch
@@ -111,7 +111,7 @@ class RootModel:
 
     def print_train_iteration(self, traini, loss_batch):
         if self.training_state['total_iterations'] % self.meta_data['display_iter'] == 0:
-            print("epoch: ", self.epoch, "  train iteration: ", traini+1, "/", self.nb_batches_train, \
+            print("epoch: ", self.epoch,  "  train iteration: ", traini+1, "/", self.nb_batches_train, \
                 ' batch_loss: ', loss_batch)
 
     def print_valid_iteration(self, validi, loss_batch):
@@ -151,7 +151,7 @@ class RootModel:
             self.training_state['best_validation_acc'] = self.training_state['validation_acc']
             self.training_state['best_validation_epoch'] = self.training_state['epoch']
 
-    def save_plot_history(self, current_epoch):
+    def save_show_plot_history(self, current_epoch):
         self.training_history.append(current_epoch)
         np.save(self.write_filename + '_history', np.asarray(self.training_history))
         myUtils.plot_show(np.asarray(self.training_history))
@@ -160,16 +160,32 @@ class RootModel:
     def save_state(self, training_state):
         with open(self.write_filename + '.state', 'w') as f:
             f.write('training_status\n')
-            json.dump(training_state, f, indent=2)
+            try:
+                json.dump(training_state, f, indent=2)
+            except Exception as err:
+                print(err)
+                f.write('JSON failed to dump\n')
             f.write('\n')
             f.write('hyper_meta_data\n')
-            json.dump(self.external_meta_data, f, indent=2)
+            try:
+                json.dump(self.external_meta_data, f, indent=2)
+            except Exception as err:
+                print(err)
+                f.write('JSON failed to dump\n')
             f.write('\n')
             f.write('meta_data\n')
-            json.dump(self.meta_data, f, indent=2)
+            try:
+                json.dump(self.meta_data, f, indent=2)
+            except Exception as err:
+                print(err)
+                f.write('JSON failed to dump\n')
             f.write('\n')
             f.write('data_handler.meta_data\n')
-            json.dump(self.data_handler.get_meta_data(), f, indent=2)
+            try:
+                json.dump(self.data_handler.get_meta_data(), f, indent=2)
+            except Exception as err:
+                print(err)
+                f.write('JSON failed to dump\n')
             f.write('\n')
         print('wrote state and history files: {:s}.state, {:s}.history'.format(self.write_filename, self.write_filename))
 
@@ -190,9 +206,22 @@ class RootModel:
     def total_training_iteration(self, value):
         self._training_iteration = value
         self.training_state['total_iterations'] = value
-        epoch = np.round(value / self.nb_batches_train)
+        epoch = np.floor(value / self.nb_batches_train)
         if epoch != self.epoch:
             self.epoch = epoch
+
+    def snapshot_handler(self, solver, training_status):
+        meta = self.meta_data
+        if 'best' in meta['snapshot_approach'] and \
+           training_status['best_validation_epoch'] ==  training_status['epoch']:
+            self.write_snapshot(solver, '_best')
+        if 'step' in meta['snapshot_approach'] and self.epoch % meta['snapshot_epochs'] == 0:
+            self.write_snapshot(solver, '_step')
+        if 'last' in meta['snapshot_approach']:
+            self.write_snapshot(solver, '_last')
+        # if 'step' in meta['snapshot_approach'] and self.epoch % meta['caffe_solver_state_epochs'] == 0:
+        #     self.write_caffe_solver_state(solver)
+
 
     @abstractmethod
     def model(self):
@@ -211,7 +240,7 @@ class RootModel:
         pass
 
     @abstractmethod
-    def snapshot_handler(self, solver, training_status):
+    def write_snapshot(self, solver, type_str):
         pass
 
     @abstractmethod

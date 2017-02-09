@@ -167,7 +167,7 @@ class DemoNetModel(RootCaffeModel):
             self.update_training_state_training()
             self.snapshot_handler(solver, self.training_state)  # needs to be before epoch update to keep track of 'best_validation'
 
-            self.save_plot_history(self.current_epoch_history)
+            self.save_show_plot_history(self.current_epoch_history)
             self.save_state(self.training_state)
 
             self.print_current_epoch_history()

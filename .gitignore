@@ -93,13 +93,15 @@ ENV/
 
 #caffe
 *.prototxt
+*.caffemodel
+
+#snapshots
 *.png
 *.state
-*.caffemodel
 *.npy
-
 
 #mine
 sandbox
 
-
+#keras
+*.kerasmodel
