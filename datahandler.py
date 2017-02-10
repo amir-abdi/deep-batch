@@ -41,13 +41,18 @@ class DataHandler:
             data_batch = [img / 255. for img in data_batch]
         # return self.convert_to_npArray(data_batch, label_batch, scale_to_1=normalize_to_1_scale)
 
-        data_batch_np = np.asarray(data_batch)
+        if self.meta_data['scale_label'] != 0:
+            label_batch = self.scale_label(label_batch, self.meta_data['range_views'], self.current_view)
+        data_batch = np.asarray(data_batch)
 
         # if add_unit_channel and data_batch.ndim != 4:
-        data_batch_np = self.add_unit_channel(data_batch_np)
-        return (data_batch_np, label_batch)
+        data_batch = self.match_TensorFlow_shape(data_batch)
+        return (data_batch, label_batch)
 
-    def add_unit_channel(self, imgs):
+    def scale_label(self, labels, view_ranges, current_view):
+        return [l/view_ranges[current_view] for l in labels]
+
+    def match_TensorFlow_shape(self, imgs):
         # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
         # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
         num_frames = self.meta_data['num_frames']
@@ -280,6 +285,7 @@ class DataHandler:
         return len(self.train_labels)
 
     def get_data_batch_random(self, batch_size, train_valid='train', method='uniform', view=None):
+        self.current_view = view
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
         label_type = self.meta_data['label_type']

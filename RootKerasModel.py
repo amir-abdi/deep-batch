@@ -7,7 +7,7 @@ from keras.layers import Dense, Activation, Input
 from keras.layers import Convolution2D, activations
 from keras.layers.convolutional import MaxPooling2D
 from keras.regularizers import l2, activity_l2
-from keras.optimizers import SGD, adagrad, adadelta
+from keras.optimizers import SGD, adagrad, adadelta, adam
 from keras.layers import Flatten
 from RootModel import RootModel
 from keras.models import Model
@@ -36,12 +36,7 @@ class RootKerasModel(RootModel):
                               self.meta_data['channels']),
                               name='input'+str(i))
             )
-        # TimeDistributed(Dense(8), input_shape=(10, 16))
         conv1 = TimeDistributed(Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
-                                # input_shape=(num_frames,
-                                #              self.meta_data['crop_height'],
-                                #              self.meta_data['crop_width'],
-                                #              self.meta_data['channels']))
         max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
         conv2 = TimeDistributed(Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
         max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
@@ -62,7 +57,6 @@ class RootKerasModel(RootModel):
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Flatten())(v[i])
             v[i] = TimeDistributed(Dense(512, activation='relu'))(v[i])
-            # v[i] = TimeDistributed(Dense(1))(v[i])
             v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
             pred_list.append(v[i])
 
@@ -82,7 +76,7 @@ class RootKerasModel(RootModel):
         #               decay=self.meta_data['weight_decay'],
         #               nesterov=False)
 
-        opt = adadelta()
+        opt = adam()
 
         net_model.compile(optimizer=opt, loss='mse', metrics=['mean_absolute_error'])
 
@@ -109,18 +103,23 @@ class RootKerasModel(RootModel):
             'channels': 1,
             'crop_width': 100,
             'crop_height': 100,
+
+            # SGD
             'base_lr': 0.001,
-            'display': '100',
-            'type': '\"AdaGrad\"',
-            'lr_policy': '\"step\"',
             'stepsize': '1000',
             'gamma': '0.5',
             'max_iter': '1000000',
             'momentum': 0.95,
             'weight_decay': 0.05,
             'regularization_type': '\'"L2\"',
+            'lr_policy': '\"step\"',    # caffe
 
+            # solver
             'solver_mode': 'GPU',
+            'type': '\"AdaGrad\"',      # caffe
+
+            # display
+            'display': '100',           # caffe
             'display_iter': 1,
 
             # snapshot parameters
@@ -142,12 +141,13 @@ class RootKerasModel(RootModel):
             'random_rotate_degree': 7,
             'train_batch_method': 'random',  # 'random', 'uniform'
             'split_ratio': 0.1,  # set to 0 if not splitting train and valid
-            'load_to_memory': True,
+            'load_to_memory': False,
             'subtract_mean': False,
             'file_format': 'mat',  # 'mat', 'image'
             'delimiter': ',',
             'main_label_index': 0,
             'label_type': 'single_value',  # 'single_value', 'mask_image'
+            'scale_label': 1,  # 0: do not rescale, else: rescale all labels to the value
 
             # end of training parameters
             'max_epoch': 200,
@@ -165,8 +165,12 @@ class RootKerasModel(RootModel):
         return self.net_model
 
     def calculate_accuracy_from_absErr(self, abs_errs):
-        range_views = self.meta_data['range_views']
         abs_errs = np.asarray(abs_errs)
+        if self.meta_data['scale_label'] == 0:
+            range_views = self.meta_data['range_views']
+        else:
+            range_views = np.ones(abs_errs.shape)
+
         metric = np.mean((range_views - abs_errs) / range_views)
         return metric
 

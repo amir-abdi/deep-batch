@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e509cbf9-ebae-4f33-a64e-955a16c65945" name="Default" comment="train on single frame for 7 views compele. &#10;reading cine and loading to memory complete.&#10;before adding lstm layers&#10;">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/framework.iml" afterPath="$PROJECT_DIR$/.idea/framework.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RootKerasModel.py" afterPath="$PROJECT_DIR$/RootKerasModel.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/datahandler.py" afterPath="$PROJECT_DIR$/datahandler.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_keras.py" afterPath="$PROJECT_DIR$/main_keras.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/myUtils.py" afterPath="$PROJECT_DIR$/myUtils.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -19,7 +15,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/caffe_framework$main_echoQuality_7views.coverage" NAME="main_echoQuality_7views Coverage Results" MODIFIED="1485231250053" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/caffe_framework$main_demonet.coverage" NAME="main_demonet Coverage Results" MODIFIED="1485228887395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/framework$main_keras.coverage" NAME="main_keras Coverage Results" MODIFIED="1486703869122" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/framework$main_keras.coverage" NAME="main_keras Coverage Results" MODIFIED="1486758583470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -30,7 +26,7 @@
       <file leaf-file-name="main_keras.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_keras.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
+            <state relative-caret-position="486">
               <caret line="27" column="70" lean-forward="false" selection-start-line="27" selection-start-column="70" selection-end-line="27" selection-end-column="70" />
               <folding>
                 <element signature="e#0#41#0" expanded="true" />
@@ -42,8 +38,8 @@
       <file leaf-file-name="RootModel.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RootModel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="492">
-              <caret line="96" column="38" lean-forward="false" selection-start-line="96" selection-start-column="38" selection-end-line="96" selection-end-column="38" />
+            <state relative-caret-position="320">
+              <caret line="49" column="34" lean-forward="false" selection-start-line="49" selection-start-column="34" selection-end-line="49" selection-end-column="34" />
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
                 <marker date="1486635249068" expanded="true" signature="334:492" ph="..." />
@@ -62,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RootKerasModel.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="RootKerasModel.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RootKerasModel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="144" column="34" lean-forward="false" selection-start-line="144" selection-start-column="34" selection-end-line="144" selection-end-column="34" />
+            <state relative-caret-position="432">
+              <caret line="180" column="34" lean-forward="true" selection-start-line="180" selection-start-column="34" selection-end-line="180" selection-end-column="34" />
               <folding>
                 <element signature="e#144#193#0" expanded="true" />
               </folding>
@@ -74,11 +70,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="datahandler.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="datahandler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/datahandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="346" column="0" lean-forward="false" selection-start-line="346" selection-start-column="0" selection-end-line="346" selection-end-column="0" />
+            <state relative-caret-position="612">
+              <caret line="57" column="49" lean-forward="true" selection-start-line="57" selection-start-column="49" selection-end-line="57" selection-end-column="49" />
               <folding />
             </state>
           </provider>
@@ -152,8 +148,8 @@
         <option value="$PROJECT_DIR$/extra.py" />
         <option value="$PROJECT_DIR$/myUtils.py" />
         <option value="$PROJECT_DIR$/main_keras.py" />
-        <option value="$PROJECT_DIR$/RootKerasModel.py" />
         <option value="$PROJECT_DIR$/datahandler.py" />
+        <option value="$PROJECT_DIR$/RootKerasModel.py" />
       </list>
     </option>
   </component>
@@ -522,25 +518,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29564258" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.616025" sideWeight="0.5019305" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34651405" sideWeight="0.4980695" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25078043" sideWeight="0.4980695" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -564,7 +560,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="114" />
+      <option name="time" value="119" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -892,20 +888,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_keras.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="27" column="70" lean-forward="false" selection-start-line="27" selection-start-column="70" selection-end-line="27" selection-end-column="70" />
-          <folding>
-            <element signature="e#0#41#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/RootModel.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="96" column="38" lean-forward="false" selection-start-line="96" selection-start-column="38" selection-end-line="96" selection-end-column="38" />
+        <state relative-caret-position="320">
+          <caret line="49" column="34" lean-forward="false" selection-start-line="49" selection-start-column="34" selection-end-line="49" selection-end-column="34" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
             <marker date="1486635249068" expanded="true" signature="334:492" ph="..." />
@@ -913,21 +899,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RootKerasModel.py">
+    <entry file="file://$PROJECT_DIR$/main_keras.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="144" column="34" lean-forward="false" selection-start-line="144" selection-start-column="34" selection-end-line="144" selection-end-column="34" />
+        <state relative-caret-position="486">
+          <caret line="27" column="70" lean-forward="false" selection-start-line="27" selection-start-column="70" selection-end-line="27" selection-end-column="70" />
           <folding>
-            <element signature="e#144#193#0" expanded="true" />
+            <element signature="e#0#41#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/datahandler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="346" column="0" lean-forward="false" selection-start-line="346" selection-start-column="0" selection-end-line="346" selection-end-column="0" />
+        <state relative-caret-position="612">
+          <caret line="57" column="49" lean-forward="true" selection-start-line="57" selection-start-column="49" selection-end-line="57" selection-end-column="49" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RootKerasModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="180" column="34" lean-forward="true" selection-start-line="180" selection-start-column="34" selection-end-line="180" selection-end-column="34" />
+          <folding>
+            <element signature="e#144#193#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
