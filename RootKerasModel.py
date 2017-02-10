@@ -1,5 +1,8 @@
-import keras
-from keras.models import Sequential
+# import keras
+# from keras.models import Sequential
+# from keras.layers.extra import TimeDistributedConvolution2D, TimeDistributedMaxPooling2D
+from keras.layers.wrappers import TimeDistributed
+from keras.layers.recurrent import LSTM
 from keras.layers import Dense, Activation, Input
 from keras.layers import Convolution2D, activations
 from keras.layers.convolutional import MaxPooling2D
@@ -23,22 +26,27 @@ class RootKerasModel(RootModel):
 
     def net(self):
         #todo: dropout
+        num_frames = self.meta_data['num_frames']
         input_list = []
         for i in range(self.number_of_views):
             input_list.append(
-                Input(shape=(
+                Input(shape=(num_frames,
                               self.meta_data['crop_height'],
                               self.meta_data['crop_width'],
                               self.meta_data['channels']),
                               name='input'+str(i))
             )
-
-        conv1 = Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1))
-        max1 = MaxPooling2D((3, 3), strides=(2, 2))
-        conv2 = Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1))
-        max2 = MaxPooling2D((3, 3), strides=(2, 2))
-        conv3 = Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1))
-        max3 = MaxPooling2D((3, 3), strides=(2, 2))
+        # TimeDistributed(Dense(8), input_shape=(10, 16))
+        conv1 = TimeDistributed(Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+                                # input_shape=(num_frames,
+                                #              self.meta_data['crop_height'],
+                                #              self.meta_data['crop_width'],
+                                #              self.meta_data['channels']))
+        max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv2 = TimeDistributed(Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv3 = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        max3 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
 
         v = []
         pred_list = []
@@ -50,11 +58,13 @@ class RootKerasModel(RootModel):
             v[i] = conv3(v[i])
             v[i] = max3(v[i])
 
-            v[i] = Convolution2D(40, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1))(v[i])
-            v[i] = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(v[i])
-            v[i] = Flatten()(v[i])
-            v[i] = Dense(512, activation='relu')(v[i])
-            pred_list.append(Dense(1, name='pred'+str(i))(v[i]))
+            v[i] = TimeDistributed(Convolution2D(40, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Flatten())(v[i])
+            v[i] = TimeDistributed(Dense(512, activation='relu'))(v[i])
+            # v[i] = TimeDistributed(Dense(1))(v[i])
+            v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
+            pred_list.append(v[i])
 
         self.net_model = Model(input=input_list, output=pred_list)
 
@@ -95,11 +105,11 @@ class RootKerasModel(RootModel):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
             'model_variant': '7view_keras',
-            'batch_size': 14,
+            'batch_size': 36,
             'channels': 1,
-            'crop_width': 400,
-            'crop_height': 400,
-            'base_lr': 0.00001,
+            'crop_width': 100,
+            'crop_height': 100,
+            'base_lr': 0.001,
             'display': '100',
             'type': '\"AdaGrad\"',
             'lr_policy': '\"step\"',
@@ -126,13 +136,13 @@ class RootKerasModel(RootModel):
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
 
             # data handler parameters
-            'resize_width': 400,
-            'resize_height': 400,
+            'resize_width': 100,
+            'resize_height': 100,
             'random_translate_std_ratio': 20,
             'random_rotate_degree': 7,
             'train_batch_method': 'random',  # 'random', 'uniform'
             'split_ratio': 0.1,  # set to 0 if not splitting train and valid
-            'load_to_memory': False,
+            'load_to_memory': True,
             'subtract_mean': False,
             'file_format': 'mat',  # 'mat', 'image'
             'delimiter': ',',
@@ -140,10 +150,13 @@ class RootKerasModel(RootModel):
             'label_type': 'single_value',  # 'single_value', 'mask_image'
 
             # end of training parameters
-            'max_epoch': 60,
+            'max_epoch': 200,
             'min_epoch': 30,
-            'terminate_if_not_improved_epoch': 5,
-            'averaging_window': 15
+            'terminate_if_not_improved_epoch': 10,
+            'averaging_window': 15,
+
+            #cine
+            'num_frames': 25
 
         }
         return m

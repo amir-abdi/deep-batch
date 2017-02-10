@@ -4,12 +4,15 @@ import glob
 import numpy as np
 
 def plot_show(data, block=False):
-    l1 = plt.plot(data[:, c.TRAIN_LOSS], 'b')
+    # l1 = plt.plot(data[:, c.TRAIN_LOSS], 'b')
     l2 = plt.plot(data[:, c.TRAIN_ACCURACY], 'g')
-    l3 = plt.plot(data[:, c.VAL_LOSS], 'b--')
+    # l3 = plt.plot(data[:, c.VAL_LOSS], 'b--')
     l4 = plt.plot(data[:, c.VAL_ACCURACY], 'g--')
-    plt.legend(['Train_loss', 'Train_Acc', 'Valid_Loss', 'Valid_Acc'])
-    # plt.legend(['Train_Acc', 'Valid_Acc'])
+    # plt.legend(['Train_loss',
+    #             'Train_Acc',
+    #             'Valid_Loss',
+    #             'Valid_Acc'])
+    plt.legend(['Train_Acc', 'Valid_Acc'])
     plt.xlabel('epochs')
     plt.ylabel('value')
     plt.show(block=block)

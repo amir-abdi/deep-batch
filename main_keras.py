@@ -1,5 +1,8 @@
 from RootKerasModel import RootKerasModel
 import numpy as np
+import sys
+sys.path.append('/home/amir/keras/keras/layers')
+sys.path.append('/home/amir/keras/keras/build/lib/layers')
 
 if __name__ == "__main__":
 
@@ -8,6 +11,7 @@ if __name__ == "__main__":
     list_train_str = list_files_folder + 'list_train'
     list_valid_str = list_files_folder + 'list_valid'
 
+    views = ['AP2', 'AP3', 'AP4', 'PLAX', 'PSAX(A)', 'PSAX(M)', 'PSAX(PM)']
 
     list_train = []
     list_valid = []
@@ -15,7 +19,7 @@ if __name__ == "__main__":
     # list_train.append(list_train_str)
     # list_valid.append(list_valid_str)
 
-    selected_views = range(0, 7)
+    selected_views = [0, 1, 2, 4, 5, 6]  # range(0, 7)
     for i in selected_views:
         list_train.append(list_train_str + str(i))
         list_valid.append(list_valid_str + str(i))

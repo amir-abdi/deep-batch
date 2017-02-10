@@ -18,7 +18,6 @@ class DataHandler:
         self.train_iterator = 0
         self.valid_iterator = 0
         self.view_iterator = 0
-        self.number_of_frames = 20
 
     def preprocess(self, data_batch, label_batch, rotate_degree=None, translate_std_ratio=None,
                    crop_width=None, crop_height=None, resize_width=None, resize_height=None,
@@ -42,14 +41,26 @@ class DataHandler:
             data_batch = [img / 255. for img in data_batch]
         # return self.convert_to_npArray(data_batch, label_batch, scale_to_1=normalize_to_1_scale)
 
-        data_batch = np.asarray(data_batch)
+        data_batch_np = np.asarray(data_batch)
 
-        if add_unit_channel and data_batch.ndim != 4:
-            data_batch = self.add_unit_channel(data_batch)
-        return (data_batch, label_batch)
+        # if add_unit_channel and data_batch.ndim != 4:
+        data_batch_np = self.add_unit_channel(data_batch_np)
+        return (data_batch_np, label_batch)
 
     def add_unit_channel(self, imgs):
-        return imgs.reshape(imgs.shape[0], imgs.shape[1], imgs.shape[2], self.number_of_frames)
+        # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
+        # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
+        num_frames = self.meta_data['num_frames']
+        # imgs shape: 2, 200, 200, 10
+        imgs = np.swapaxes(imgs, 1, 3)
+        imgs = np.swapaxes(imgs, 2, 3)
+        imgs = imgs.reshape(imgs.shape[0],  # batch size
+                            imgs.shape[1],     # num_frames
+                            imgs.shape[2],  # width
+                            imgs.shape[3],  # height
+                            1               # channels
+                            )
+        return imgs
 
     def _read_train_valid_from_list_file(self, train_list, valid_list):
         load_to_memory = self.meta_data['load_to_memory']
@@ -190,6 +201,7 @@ class DataHandler:
         delimiter = self.meta_data['delimiter']
         load_to_memory = self.meta_data['load_to_memory']
         file_format = self.meta_data['file_format']
+        num_frames = self.meta_data['num_frames']
         images = []
         labels = []
         counter = 0
@@ -210,24 +222,26 @@ class DataHandler:
                 if os.path.isfile(file_dir):
                     if load_to_memory:
                         if file_format == 'mat':
+                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=True)
+                            images.extend(cines)
+                            for i in range(len(cines)):
+                                labels.append(label)
                             # matfile = sio.loadmat(file_dir)
-                            # dicomImage = matfile['Patient']['DicomImage']
-                            # images.append(dicomImage)
-
-                            matfile = sio.loadmat(file_dir)
-                            cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
-                            images.append(cine[:, :, :self.number_of_frames])  # todo: read entire cine
+                            # cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
+                            # images.append(cine[:, :, :num_frames])
                         else:
                             images.append(Image.open(file_dir))
                             images[-1].load()
+                            labels.append(label)
                     else:
                         images.append(file_dir)
-                    labels.append(label)
+                        labels.append(label)
                 elif os.path.isdir(file_dir):
                     for sub_file in glob.iglob(file_dir+'/*'+file_format):
                         images.append(Image.open(sub_file) if load_to_memory else sub_file)  # .resize((400, 266), Image.BILINEAR)
-                        if load_to_memory:
-                            images[-1].load()
+                        if file_format == 'image':
+                            if load_to_memory:
+                                images[-1].load()
                         # img_arrray = cv2.imread(sub_file, 0)
 
                         # img_arrray = img_arrray.dtype(np.uint8)
@@ -269,6 +283,8 @@ class DataHandler:
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
         label_type = self.meta_data['label_type']
+        num_frames = self.meta_data['num_frames']
+
         if train_valid == 'train':
             images = self.train_images[view]
             labels = self.train_labels[view]
@@ -306,10 +322,9 @@ class DataHandler:
                     # batch_images.append(Image.open(images[i]))
                     # batch_images[-1].load()
                 elif self.meta_data['file_format'] == 'mat':
-                    matfile = sio.loadmat(images[i])
-                    cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
-                    batch_images.append(cine[:, :, :self.number_of_frames])  # todo: read entire cine
-                    gc.collect()
+                    cines = self.read_patient_from_mat(images[i], multi_cine_per_patient=False)
+                    batch_images.extend(cines)  # todo: read entire cine
+                    # print('Number of frames = ', str(cines[0].shape[2]))
             if label_type == 'single_value':
                 batch_labels = [labels[i][main_label_index] for i in selected_indices]
             elif label_type == 'mask_image':
@@ -318,6 +333,34 @@ class DataHandler:
                     batch_labels.append(Image.open(labels[i]))
                     batch_labels[-1].load()
         return batch_images, batch_labels
+
+    def read_patient_from_mat(self, file, multi_cine_per_patient=False):
+        num_frames = self.meta_data['num_frames']
+        matfile = sio.loadmat(file)
+        cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
+        cines = []
+        if cine.shape[2] == num_frames:
+            cines.append(np.copy(cine))
+        elif cine.shape[2] > num_frames:
+            if multi_cine_per_patient:
+                # consider every num_frames frames as one patient
+                i = 0
+                while i+num_frames < cine.shape[2]:
+                    temp_cine = cine[:, :, i:i+num_frames]
+                    cines.append(np.copy(temp_cine))
+                    i += num_frames
+            else:
+                # choose one random sequence of num_frames length
+                from random import randint
+                i = randint(0, cine.shape[2] - num_frames)
+                cines.append(np.copy(cine[:, :, i:i+num_frames]))
+        elif cine.shape[2] < num_frames:
+            # cycle over
+            # cine = np.resize(cine, (cine.shape[0], cine.shape[1], num_frames))
+            cine = np.concatenate((cine, cine[:, :, :num_frames-cine.shape[2]]), axis=2)
+            cines.append(np.copy(cine))
+        gc.collect()
+        return cines
 
     def get_data_batch_iterative(self, batch_size, train_valid='train'):
         load_to_memory = self.meta_data['load_to_memory']
@@ -351,7 +394,7 @@ class DataHandler:
 
     def translate_random(self, imgs, labels, std_ratio=20):
         label_type = self.meta_data['label_type']
-        if self.number_of_frames != 1:
+        if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -400,7 +443,7 @@ class DataHandler:
 
     def crop_middle(self, imgs, labels, crop_width, crop_height):
         label_type = self.meta_data['label_type']
-        if self.number_of_frames != 1:
+        if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -433,7 +476,7 @@ class DataHandler:
 
     def rotate_random(self, imgs, labels, rotation_std):
         label_type = self.meta_data['label_type']
-        if self.number_of_frames != 1:
+        if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -476,7 +519,7 @@ class DataHandler:
 
     def resize(self, imgs, labels, width, height):
         label_type = self.meta_data['label_type']
-        if self.number_of_frames != 1:
+        if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
