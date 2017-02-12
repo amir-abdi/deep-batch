@@ -1,6 +1,7 @@
 # import keras
 # from keras.models import Sequential
 # from keras.layers.extra import TimeDistributedConvolution2D, TimeDistributedMaxPooling2D
+from keras.layers.core import DropOut
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers import Dense, Activation, Input
@@ -57,6 +58,7 @@ class RootKerasModel(RootModel):
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Flatten())(v[i])
             v[i] = TimeDistributed(Dense(512, activation='relu'))(v[i])
+            v[i] = Dropout(0.5)(v[i])
             v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
             pred_list.append(v[i])
 
