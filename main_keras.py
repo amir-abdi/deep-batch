@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # list_train.append(list_train_str)
     # list_valid.append(list_valid_str)
 
-    selected_views = [0] #[0, 1, 2, 4, 5, 6]  # range(0, 7)
+    selected_views = [0, 1, 2, 4, 5, 6]  # range(0, 7)
     for i in selected_views:
         list_train.append(list_train_str + str(i))
         list_valid.append(list_valid_str + str(i))
