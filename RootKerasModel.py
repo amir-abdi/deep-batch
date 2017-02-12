@@ -1,7 +1,7 @@
 # import keras
 # from keras.models import Sequential
 # from keras.layers.extra import TimeDistributedConvolution2D, TimeDistributedMaxPooling2D
-from keras.layers.core import DropOut
+from keras.layers.core import Dropout
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers import Dense, Activation, Input
