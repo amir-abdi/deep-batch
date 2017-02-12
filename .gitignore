@@ -105,3 +105,6 @@ sandbox
 
 #keras
 *.kerasmodel
+
+#pycharm
+.xml
