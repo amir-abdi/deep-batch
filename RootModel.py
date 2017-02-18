@@ -6,6 +6,8 @@ from abc import ABCMeta, abstractmethod
 import json
 import myUtils
 import numpy as np
+import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import constants as c
 
@@ -39,6 +41,7 @@ class RootModel:
                                     'valid_list': valid_list_file,
                                     'valid_folder': valid_folder
                                     })
+        print('Load all data to memory: ', self.meta_data['load_to_memory'])
         self.data_handler.set_data(data, self.meta_data)
         batch_size = self.meta_data['batch_size']
         train_size, valid_size = self.data_handler.get_dataset_size()
@@ -96,14 +99,17 @@ class RootModel:
         window_w = self.window_w
         max_not_improve = self.max_not_improve
         if max_epoch is not None and self.epoch >= max_epoch:
+            print('max epoch reached')
             return True
         if self.epoch < min_epoch:
             return False
-        if np.mean(self.training_history[  -window_w:         -1][c.VAL_ACCURACY]) > \
-                np.mean(self.training_history[-2*window_w:-window_w-1][c.VAL_ACCURACY]) - 0.01:
+        new_accuracy = np.mean(self.training_history[-window_w:         -1][c.VAL_ACCURACY])
+        old_accuracy = np.mean(self.training_history[-2*window_w:-window_w-1][c.VAL_ACCURACY])
+        if old_accuracy > new_accuracy:
             self.end_criteria_counter += 1
             if self.end_criteria_counter >= max_not_improve:
-                print('end of training criteria has reached')
+                print('end of training criteria has reached (end_criteria_counter = {0})'.
+                      format(self.end_criteria_counter))
                 return True
         # else:
         #     self.end_criteria_counter = 0
@@ -154,7 +160,7 @@ class RootModel:
     def save_show_plot_history(self, current_epoch):
         self.training_history.append(current_epoch)
         np.save(self.write_filename + '_history', np.asarray(self.training_history))
-        myUtils.plot_show(np.asarray(self.training_history))
+        myUtils.plot_show(np.asarray(self.training_history), num_extra=self.number_of_views)
         plt.savefig(self.write_filename + '.png')
 
     def save_state(self, training_state):

@@ -1,0 +1,25 @@
+conv1 = TimeDistributed(Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv2 = TimeDistributed(Convolution2D(15, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv3 = TimeDistributed(Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        max3 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+
+        v = []
+        pred_list = []
+        for i in range(self.number_of_views):
+            v.append(conv1(input_list[i]))
+            v[i] = max1(v[i])
+            v[i] = conv2(v[i])
+            v[i] = max2(v[i])
+            v[i] = conv3(v[i])
+            v[i] = max3(v[i])
+
+            v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Flatten())(v[i])
+
+            v[i] = TimeDistributed(Dense(256, activation='relu'))(v[i])
+            v[i] = TimeDistributed(Dropout(0.5))(v[i])
+            v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
+            pred_list.append(v[i])

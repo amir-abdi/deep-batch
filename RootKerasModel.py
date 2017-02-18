@@ -15,12 +15,16 @@ from keras.models import Model
 import numpy as np
 import constants as c
 from keras import backend as K
+
+# import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from keras.engine.topology import Layer
 
 class RootKerasModel(RootModel):
     def __init__(self, external_dict=None):
         super().__init__(external_dict)
+
 
     def model(self):
         self.net()
@@ -37,11 +41,11 @@ class RootKerasModel(RootModel):
                               self.meta_data['channels']),
                               name='input'+str(i))
             )
-        conv1 = TimeDistributed(Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        conv1 = TimeDistributed(Convolution2D(5, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
         max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
-        conv2 = TimeDistributed(Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        conv2 = TimeDistributed(Convolution2D(10, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
         max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
-        conv3 = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
+        conv3 = TimeDistributed(Convolution2D(20, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))
         max3 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
 
         v = []
@@ -54,11 +58,15 @@ class RootKerasModel(RootModel):
             v[i] = conv3(v[i])
             v[i] = max3(v[i])
 
-            v[i] = TimeDistributed(Convolution2D(40, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(Dropout(0.5))(v[i])
+            v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Flatten())(v[i])
-            v[i] = TimeDistributed(Dense(512, activation='relu'))(v[i])
-            v[i] = Dropout(0.5)(v[i])
+
+            v[i] = TimeDistributed(Dense(128, activation='relu'))(v[i])
+            v[i] = TimeDistributed(Dropout(0.5))(v[i])
             v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
             pred_list.append(v[i])
 
@@ -102,9 +110,6 @@ class RootKerasModel(RootModel):
         m = {
             'model_variant': '7view_keras',
             'batch_size': 36,
-            'channels': 1,
-            'crop_width': 100,
-            'crop_height': 100,
 
             # SGD
             'base_lr': 0.001,
@@ -136,14 +141,22 @@ class RootKerasModel(RootModel):
             'test_interval': 1,
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
 
+            #preprocess
+            'resize_width': 200,
+            'resize_height': 200,
+            'crop_width': 200,
+            'crop_height': 200,
+            'channels': 1,
+            'random_rotate_method': 'uniform',  # 'uniform', 'normal'
+            'random_translate_method': 'uniform',  # 'uniform', 'normal'
+            'random_translate_ratio_value': 20,
+            'random_rotate_value': 7,
+
             # data handler parameters
-            'resize_width': 100,
-            'resize_height': 100,
-            'random_translate_std_ratio': 20,
-            'random_rotate_degree': 7,
-            'train_batch_method': 'random',  # 'random', 'uniform'
+            'train_intraclass_selection': 'random',  # 'random', 'uniform'  applicable only if train_batch_method is random
+            'train_batch_method': 'random',  # 'iterative', 'random'
             'split_ratio': 0.1,  # set to 0 if not splitting train and valid
-            'load_to_memory': False,
+            'load_to_memory': True,
             'subtract_mean': False,
             'file_format': 'mat',  # 'mat', 'image'
             'delimiter': ',',
@@ -152,8 +165,8 @@ class RootKerasModel(RootModel):
             'scale_label': 1,  # 0: do not rescale, else: rescale all labels to the value
 
             # end of training parameters
-            'max_epoch': 200,
-            'min_epoch': 30,
+            'max_epoch': 150,
+            'min_epoch': 50,
             'terminate_if_not_improved_epoch': 10,
             'averaging_window': 15,
 
@@ -194,7 +207,7 @@ class RootKerasModel(RootModel):
             print('=' * 80)
             print('Start Training')
             # self.current_epoch_history = np.zeros((num_views, 4))
-            self.current_epoch_history = np.zeros(4)
+            self.current_epoch_history = np.zeros(4+num_views)
 
             #training epoch loop
             for traini in range(nb_batches_train):
@@ -203,13 +216,14 @@ class RootKerasModel(RootModel):
                 input_args = dict()
                 pred_args = dict()
                 for view in range(num_views):
-                    x_temp, y_temp = self.data_handler.get_data_batch_random(batch_size=batch_size_per_view,
-                                                                   train_valid='train',
-                                                                   method=meta_data['train_batch_method'],
-                                                                    view=view)
+                    x_temp, y_temp = self.data_handler.get_batch(batch_size=batch_size_per_view,
+                                                                 train_valid='train',
+                                                                 batch_selection_method=meta_data['train_batch_method'],
+                                                                 interclass_selection_method=meta_data['train_intraclass_selection'],
+                                                                 view=view)
                     x_temp, y_temp = self.data_handler.preprocess(data_batch=x_temp, label_batch=y_temp,
-                                                        rotate_degree=meta_data['random_rotate_degree'],
-                                                        translate_std_ratio=meta_data['random_translate_std_ratio'],
+                                                        rotate_degree=meta_data['random_rotate_value'],
+                                                        translate_std_ratio=meta_data['random_translate_ratio_value'],
                                                         crop_width=meta_data['crop_width'],
                                                         crop_height=meta_data['crop_height'],
                                                         resize_width=meta_data['resize_width'],
@@ -247,10 +261,10 @@ class RootKerasModel(RootModel):
                     x = []
                     y = []
                     for view in range(num_views):
-                        x_temp, y_temp = self.data_handler.get_data_batch_random(batch_size=batch_size_per_view,
-                                                                                 train_valid='train',
-                                                                                 method=meta_data['train_batch_method'],
-                                                                                 view=view)
+                        x_temp, y_temp = self.data_handler.get_batch(batch_size=batch_size_per_view,
+                                                                                 train_valid='valid',
+                                                                                    batch_selection_method='iterative',
+                                                                                    view=view)
                         x_temp, y_temp = self.data_handler.preprocess(data_batch=x_temp, label_batch=y_temp,
                                                             crop_width=meta_data['crop_width'],
                                                             crop_height=meta_data['crop_height'],
@@ -277,6 +291,8 @@ class RootKerasModel(RootModel):
                     # for view in range(num_views):
                     self.current_epoch_history[c.VAL_LOSS] += (loss_batch / nb_batches_valid)
                     self.current_epoch_history[c.VAL_ACCURACY] += (acc_batch / nb_batches_valid)
+                    for t in range(num_views):
+                        self.current_epoch_history[4 + t] += ((1-output[num_views + 1 + t]) / nb_batches_valid)
                     self.print_valid_iteration(validi, output)
 
                 print("End of Validation\n", "-" * 80)
@@ -285,6 +301,7 @@ class RootKerasModel(RootModel):
             print("End of Training Epoch\n", "-" * 80)
             self.update_training_state_training()
             self.snapshot_handler(solver, self.training_state)  # needs to be before epoch update to keep track of 'best_validation'
+
 
             self.save_show_plot_history(self.current_epoch_history)
             self.save_state(self.training_state)

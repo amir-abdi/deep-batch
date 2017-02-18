@@ -1,17 +1,22 @@
+# import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import constants as c
 import glob
 import numpy as np
 
-def plot_show(data, block=False):
+def plot_show(data, block=False, num_extra=0):
     # l1 = plt.plot(data[:, c.TRAIN_LOSS], 'b')
-    l2 = plt.plot(data[:, c.TRAIN_ACCURACY], 'g')
+    l2 = plt.plot(data[1:, c.TRAIN_ACCURACY], 'g')
     # l3 = plt.plot(data[:, c.VAL_LOSS], 'b--')
-    l4 = plt.plot(data[:, c.VAL_ACCURACY], 'g--')
+    l4 = plt.plot(data[1:, c.VAL_ACCURACY], 'g--')
     # plt.legend(['Train_loss',
     #             'Train_Acc',
     #             'Valid_Loss',
     #             'Valid_Acc'])
+    for t in range(num_extra):
+        plt.plot(data[1:, 4+t])
+
     plt.legend(['Train_Acc', 'Valid_Acc'])
     plt.xlabel('epochs')
     plt.ylabel('value')

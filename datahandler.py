@@ -3,11 +3,9 @@ from datashape.coretypes import float32
 import directory_settings as s
 import numpy as np
 from PIL import Image
-import matplotlib.pyplot as plt
 import os
 import glob
 from sklearn.model_selection import train_test_split
-import lmdb
 import cv2
 import scipy.io as sio
 import gc
@@ -15,9 +13,7 @@ import gc
 class DataHandler:
     def __init__(self):
         print('data handler')
-        self.train_iterator = 0
-        self.valid_iterator = 0
-        self.view_iterator = 0
+        # self.view_iterator = 0
 
     def preprocess(self, data_batch, label_batch, rotate_degree=None, translate_std_ratio=None,
                    crop_width=None, crop_height=None, resize_width=None, resize_height=None,
@@ -159,6 +155,9 @@ class DataHandler:
         self.train_label_map, self.train_label_headers = self.create_label_map(self.train_labels, main_label_index)
         self.valid_label_map, self.valid_label_headers = self.create_label_map(self.valid_labels, main_label_index)
 
+        self.train_iterator = np.zeros(self.get_num_views(), np.int)
+        self.valid_iterator = np.zeros(self.get_num_views(), np.int)
+
     def _read_data_from_folder(self, train_folder, image_format):
         print('_read_data_from_folder not implemented yet')
         return None, None
@@ -284,35 +283,51 @@ class DataHandler:
     def get_num_views(self):
         return len(self.train_labels)
 
-    def get_data_batch_random(self, batch_size, train_valid='train', method='uniform', view=None):
+    def get_batch(self, batch_size, train_valid='train', batch_selection_method ='random',
+                  interclass_selection_method='uniform', view=None):
         self.current_view = view
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
         label_type = self.meta_data['label_type']
         num_frames = self.meta_data['num_frames']
 
+        if view is None:
+            assert False
+
         if train_valid == 'train':
             images = self.train_images[view]
             labels = self.train_labels[view]
             label_map = self.train_label_map[view]
+            iter = self.train_iterator[view]
         else:  # if train_valid == 'valid':
             images = self.valid_images[view]
             labels = self.valid_labels[view]
             label_map = self.valid_label_map[view]
+            iter = self.valid_iterator[view]
 
-        if method == 'random':
-            selected_indices = np.random.permutation(len(images))[:batch_size]
-        else:  # if method == 'uniform':
-            num_classes = len(label_map)
-            samples_per_class = batch_size//num_classes
-            samples_per_class = 1 if samples_per_class == 0 else samples_per_class
-            selected_indices = []
-            for i in range(num_classes):
-                indices = np.random.permutation(len(label_map[i]))[:samples_per_class]
-                selected_indices.extend([label_map[i][j] for j in indices])
-            if batch_size%num_classes != 0:
-                indices = np.random.permutation(len(images))[:batch_size%num_classes]
-                selected_indices.extend(indices)
+        if batch_selection_method == 'random':
+            if interclass_selection_method == 'random':
+                selected_indices = np.random.permutation(len(images))[:batch_size]
+            else:  # if method == 'uniform':
+                num_classes = len(label_map)
+                samples_per_class = batch_size//num_classes
+                samples_per_class = 1 if samples_per_class == 0 else samples_per_class
+                selected_indices = []
+                for i in range(num_classes):
+                    indices = np.random.permutation(len(label_map[i]))[:samples_per_class]
+                    selected_indices.extend([label_map[i][j] for j in indices])
+                if batch_size%num_classes != 0:
+                    indices = np.random.permutation(len(images))[:batch_size%num_classes]
+                    selected_indices.extend(indices)
+        elif batch_selection_method == 'iterative':
+            selected_indices = np.array(range(iter, iter + batch_size))
+            selected_indices[selected_indices >= len(images)] = \
+                selected_indices[selected_indices >= len(images)] - len(images)
+            iter = selected_indices[batch_size - 1] + 1  # todo: switch to view specific iter
+            if train_valid == 'train':
+                self.train_iterator[view] = iter
+            elif train_valid == 'valid':
+                self.valid_iterator[view] = iter
 
         batch_images = []
         batch_labels = []
@@ -368,23 +383,35 @@ class DataHandler:
         gc.collect()
         return cines
 
-    def get_data_batch_iterative(self, batch_size, train_valid='train'):
+    # obsolete function
+    def get_data_batch_iterative(self, batch_size, train_valid='train', view=None):
         load_to_memory = self.meta_data['load_to_memory']
+        main_label_index = self.meta_data['main_label_index']
+        num_frames = self.meta_data['num_frames']
         label_type = self.meta_data['label_type']
+
+        if view is None:
+            assert False
+
         if train_valid == 'train':
-            src_images = self.train_images
-            src_labels = self.train_labels
+            # src_images = self.train_images
+            # src_labels = self.train_labels
+            src_images = self.train_images[view]
+            src_labels = self.train_labels[view]
             iter = self.train_iterator
         elif train_valid == 'valid':
-            src_images = self.valid_images
-            src_labels = self.valid_labels
+            # src_images = self.valid_images
+            # src_labels = self.valid_labels
+            src_images = self.valid_images[view]
+            src_labels = self.valid_labels[view]
             iter = self.valid_iterator
         selected_indices = np.array(range(iter, iter+batch_size))
         selected_indices[selected_indices>=len(src_images)] = selected_indices[selected_indices>=len(src_images)]-len(src_images)
-        iter = selected_indices[batch_size-1]+1
+        iter = selected_indices[batch_size-1]+1 #todo: switch to view specific iter
         if load_to_memory:
             images = [src_images[i] for i in selected_indices]
-            labels = [src_labels[i] for i in selected_indices]
+            # labels = [src_labels[i] for i in selected_indices]
+            labels = [src_labels[i][main_label_index] for i in selected_indices]
         else:
             images = [Image.open(src_images[i]) for i in selected_indices]
             if label_type == 'single_value':
@@ -393,25 +420,32 @@ class DataHandler:
                 labels = [Image.open(src_labels[i]) for i in selected_indices]
 
         if train_valid == 'train':
-            self.train_iterator = iter
+            self.train_iterator[view] = iter
         elif train_valid == 'valid':
-            self.valid_iterator = iter
+            self.valid_iterator[view] = iter
         return images, labels
 
-    def translate_random(self, imgs, labels, std_ratio=20):
+    def translate_random(self, imgs, labels, value=20):
         label_type = self.meta_data['label_type']
+        method = self.meta_data['random_translate_method']
         if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
 
         for i in range(len(imgs)):
-            transX = np.random.normal(origw / 2, origw/std_ratio)
-            transY = np.random.normal(origh / 2, origh/std_ratio)
-            if np.abs(transX) > 2*origw/std_ratio:
-                transX = np.sign(transX)*2*origw/std_ratio
-            if np.abs(transY) > 2 * origh / std_ratio:
-                transY = np.sign(transY) * 2 * origh / std_ratio
+            if method == 'normal':
+                transX = np.random.normal(origw / 2, origw / value)
+                transY = np.random.normal(origh / 2, origh / value)
+                if np.abs(transX) > 2*origw/value:
+                    transX = np.sign(transX)*2*origw / value
+                if np.abs(transY) > 2 * origh / value:
+                    transY = np.sign(transY) * 2 * origh / value
+            elif method == 'uniform':
+                transX = np.random.uniform(origw / 2 - (origw / value),
+                                           origw / 2 + (origw / value))
+                transY = np.random.normal(origh / 2 - (origh / value),
+                                          origh / 2 + (origh / value))
 
             M = np.float32([[1, 0, transX], [0, 1, transY]])
             imgs[i] = dst = cv2.warpAffine(imgs[i], M, (origw, origh))
@@ -480,8 +514,9 @@ class DataHandler:
                                 np.round(middlew + crop_width / 2. + 0.1).astype(int),
                                 np.round(middleh + crop_height / 2. + 0.1).astype(int)))
 
-    def rotate_random(self, imgs, labels, rotation_std):
+    def rotate_random(self, imgs, labels, value):
         label_type = self.meta_data['label_type']
+        method = self.meta_data['random_rotate_method']
         if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
@@ -489,10 +524,13 @@ class DataHandler:
 
         #todo: added this during run. make sure it works!
         for i in range(len(imgs)):
-            rot_degree = np.round(np.random.normal(0, rotation_std))
+            if method == 'uniform':
+                rot_degree = np.round(np.random.uniform(-value, value))
+            elif method == 'normal':
+                rot_degree = np.round(np.random.normal(0, value))
             # capping rotation to 2*std
-            if np.abs(rot_degree) > 2*rotation_std:
-               rot_degree = np.sign(rot_degree)*2*rotation_std
+            if np.abs(rot_degree) > 2*value:
+               rot_degree = np.sign(rot_degree)*2 * value
 
             M = cv2.getRotationMatrix2D((origw / 2, origh / 2), rot_degree, 1)
             imgs[i] = cv2.warpAffine(imgs[i] , M, (origw, origh))

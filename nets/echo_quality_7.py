@@ -119,9 +119,9 @@ class EchoNet7(RootCaffeModel):
 
             #training epoch loop
             for traini in range(nb_batches_train):
-                x, y = self.data_handler.get_data_batch_random(batch_size=batch_size,
-                                                               train_valid='train',
-                                                               method=meta_data['train_batch_method'])
+                x, y = self.data_handler.get_batch(batch_size=batch_size,
+                                                   train_valid='train',
+                                                   interclass_selection_method=meta_data['train_batch_method'])
                 x, y = self.data_handler.preprocess(data_batch=x, label_batch=y,
                                                     rotate_degree=meta_data['random_rotate_degree'],
                                                     translate_std_ratio=meta_data['random_translate_std_ratio'],
