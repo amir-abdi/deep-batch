@@ -15,9 +15,11 @@ from keras.models import Model
 import numpy as np
 import constants as c
 from keras import backend as K
+from keras.models import load_model
 
-# import matplotlib
-# matplotlib.use('Agg')
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from keras.engine.topology import Layer
 
@@ -61,12 +63,14 @@ class RootKerasModel(RootModel):
             v[i] = TimeDistributed(Dropout(0.5))(v[i])
             v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
-            v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(50, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(100, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Flatten())(v[i])
 
             v[i] = TimeDistributed(Dense(128, activation='relu'))(v[i])
-            v[i] = TimeDistributed(Dropout(0.5))(v[i])
+            # v[i] = TimeDistributed(Dropout(0.5))(v[i])
             v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
             pred_list.append(v[i])
 
@@ -109,7 +113,7 @@ class RootKerasModel(RootModel):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
             'model_variant': '7view_keras',
-            'batch_size': 36,
+            'batch_size': 6,
 
             # SGD
             'base_lr': 0.001,
@@ -149,7 +153,7 @@ class RootKerasModel(RootModel):
             'channels': 1,
             'random_rotate_method': 'uniform',  # 'uniform', 'normal'
             'random_translate_method': 'uniform',  # 'uniform', 'normal'
-            'random_translate_ratio_value': 20,
+            'random_translate_ratio_value': 10,
             'random_rotate_value': 7,
 
             # data handler parameters
@@ -257,6 +261,7 @@ class RootKerasModel(RootModel):
 
             #validation loop
             if self.is_validation_epoch():
+                input_args = dict()
                 for validi in range(nb_batches_valid):
                     x = []
                     y = []
@@ -293,7 +298,7 @@ class RootKerasModel(RootModel):
                     self.current_epoch_history[c.VAL_ACCURACY] += (acc_batch / nb_batches_valid)
                     for t in range(num_views):
                         self.current_epoch_history[4 + t] += ((1-output[num_views + 1 + t]) / nb_batches_valid)
-                    self.print_valid_iteration(validi, output)
+                    self.print_valid_iteration(validi, output, nb_batches_valid)
 
                 print("End of Validation\n", "-" * 80)
                 self.update_training_state_validation()
@@ -315,25 +320,56 @@ class RootKerasModel(RootModel):
         print('Wrote snapshot to: {:s}'.format(file))
 
 
+    def evaluate(self, weight_file):
+        net_model = load_model(weight_file)
+        print('model loaded from file: {:s}'.format(weight_file))
+        meta_data = self.meta_data
+        num_views = self.number_of_views
+        batch_size = meta_data['batch_size']
+        nb_batches_test = self.nb_batches_test
+        batch_size_per_view = batch_size // num_views
 
+        loss = 0
+        acc = 0
+        accuracy = np.zeros((nb_batches_test, num_views))
+        predictions = np.zeros((nb_batches_test, num_views))
+        for testi in range(nb_batches_test):
+            x = []
+            y = []
 
-#   model = Model(input=[main_input, auxiliary_input], output=[main_output, auxiliary_output])
-# model.compile(optimizer='rmsprop', loss='binary_crossentropy',
-#               loss_weights=[1., 0.2])
-# model.compile(optimizer='rmsprop',
-#               loss={'main_output': 'binary_crossentropy', 'aux_output': 'binary_crossentropy'},
-#               loss_weights={'main_output': 1., 'aux_output': 0.2})
-#
-# # and trained it via:
-# model.fit({'main_input': headline_data, 'aux_input': additional_data},
-#           {'main_output': labels, 'aux_output': labels},
-#           nb_epoch=50, batch_size=32)
+            input_args = dict()
+            pred_args = dict()
+            for view in range(num_views):
+                x_temp, y_temp = self.data_handler.get_batch(batch_size=batch_size_per_view,
+                                                             train_valid='test',
+                                                             batch_selection_method='iterative',
+                                                             view=view)
+                x_temp, y_temp = self.data_handler.preprocess(data_batch=x_temp, label_batch=y_temp,
+                                                              crop_width=meta_data['crop_width'],
+                                                              crop_height=meta_data['crop_height'],
+                                                              resize_width=meta_data['resize_width'],
+                                                              resize_height=meta_data['resize_height'],
+                                                              normalize_to_1_scale=True,
+                                                              add_unit_channel=True
+                                                              )
+                x.append(x_temp)
+                y.append(y_temp)
+                input_args.update({'input' + str(view): np.asarray(x[view], )})
+                pred_args.update({'pred' + str(view): np.asarray(y[view], )})
 
+            output = net_model.test_on_batch(input_args, pred_args)
+            pred = net_model.predict_on_batch(input_args)
 
- # net_model = Sequential()
-        # x = (Convolution2D(10, 9, 9, border_mode='same', input_shape=(1, 256, 256)))(input_shape)
-        # x = Activation('relu')(x)
-        # x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(x)
-        #
-        # x = Dense(512)(x)
-        # prediction = Dense(1)(x)
+            loss_batch = sum(output[1:num_views]) / num_views
+            acc_batch = self.calculate_accuracy_from_absErr(output[num_views + 1:])
+            loss += (loss_batch / nb_batches_test)
+            acc += (acc_batch / nb_batches_test)
+
+            accuracy[testi, :] = output[num_views + 1:]
+            predictions[testi, :] = np.multiply(np.reshape(np.asarray(pred), 6), self.meta_data['range_views'])
+
+            self.print_valid_iteration(testi, output, nb_batches_test)
+        print('acc: {}'.format(acc), '   loss: {}'.format(loss))
+        print('accuracy accros views: {}'.format(accuracy.mean(0)))
+        np.savetxt("accuracy.csv", accuracy, delimiter=',')
+        np.savetxt('predictions.csv', predictions, delimiter=',')

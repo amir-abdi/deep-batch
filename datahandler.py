@@ -13,6 +13,9 @@ import gc
 class DataHandler:
     def __init__(self):
         print('data handler')
+        self.train_labels = None
+        self.test_labels = None
+        self.valid_labels = None
         # self.view_iterator = 0
 
     def preprocess(self, data_batch, label_batch, rotate_degree=None, translate_std_ratio=None,
@@ -24,7 +27,7 @@ class DataHandler:
             data_batch, label_batch = self.resize(data_batch, label_batch, resize_width, resize_height)
         if rotate_degree is not None:
             data_batch, label_batch = self.rotate_random(data_batch, label_batch, rotate_degree)
-        if self.subtract_mean is True:
+        if self.meta_data['subtract_mean'] is True:
             data_batch = self.subtract_mean_image(data_batch)
         if translate_std_ratio is not None:
             self.translate_random(data_batch, label_batch, translate_std_ratio)
@@ -118,6 +121,27 @@ class DataHandler:
                                                 self._read_train_valid_from_folder(train_folder, valid_folder,
                                                 self.meta_data['file_format'], self.meta_data['split_ratio'])
 
+    def set_test_data(self, meta_data):
+        self.set_meta_data(meta_data)
+        load_to_memory = meta_data['load_to_memory']
+        label_type = meta_data['label_type']
+        test_list_file  = meta_data['test_list_file']
+
+        self.test_images = []
+        self.test_labels = []
+        for i in range(len(test_list_file)):
+            test_images, test_labels = self.read_data_from_list_file(test_list_file[i])
+            self.test_images.append(test_images)
+            self.test_labels.append(test_labels)
+
+
+        if 'main_label_index' in self.meta_data:
+            main_label_index = self.meta_data['main_label_index']
+        else:
+            main_label_index = 0
+        self.test_label_map, self.test_label_headers = self.create_label_map(self.test_labels, main_label_index)
+        self.test_iterator = np.zeros(self.get_num_views(), np.int)
+
     def set_data(self, data, meta_data):
         self.set_meta_data(meta_data)
         load_to_memory = meta_data['load_to_memory']
@@ -144,9 +168,6 @@ class DataHandler:
         if meta_data['subtract_mean']:
             print('calculating mean image...')
             self.mean_train_image = self.set_train_mean()
-            self.subtract_mean = True
-        else:
-            self.subtract_mean = False
 
         if 'main_label_index' in self.meta_data:
             main_label_index = self.meta_data['main_label_index']
@@ -280,8 +301,17 @@ class DataHandler:
         valid_size = sum(len(l) for l in self.valid_labels)
         return train_size, valid_size
 
+    def get_testset_size(self):
+        test_size = sum(len(l) for l in self.test_labels)
+        return test_size
+
     def get_num_views(self):
-        return len(self.train_labels)
+        if self.train_labels is not None:
+            return len(self.train_labels)
+        elif self.test_labels is not None:
+            return len(self.test_labels)
+        else:
+            return 0
 
     def get_batch(self, batch_size, train_valid='train', batch_selection_method ='random',
                   interclass_selection_method='uniform', view=None):
@@ -299,11 +329,16 @@ class DataHandler:
             labels = self.train_labels[view]
             label_map = self.train_label_map[view]
             iter = self.train_iterator[view]
-        else:  # if train_valid == 'valid':
+        elif train_valid == 'valid':
             images = self.valid_images[view]
             labels = self.valid_labels[view]
             label_map = self.valid_label_map[view]
             iter = self.valid_iterator[view]
+        elif train_valid == 'test':
+            images = self.test_images[view]
+            labels = self.test_labels[view]
+            label_map = self.test_label_map[view]
+            iter = self.test_iterator[view]
 
         if batch_selection_method == 'random':
             if interclass_selection_method == 'random':
@@ -328,6 +363,10 @@ class DataHandler:
                 self.train_iterator[view] = iter
             elif train_valid == 'valid':
                 self.valid_iterator[view] = iter
+            elif train_valid == 'test':
+                self.test_iterator[view] = iter
+
+        # print("view: {}".format(view), "  iter: {}".format(iter))
 
         batch_images = []
         batch_labels = []

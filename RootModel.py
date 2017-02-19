@@ -7,7 +7,7 @@ import json
 import myUtils
 import numpy as np
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import constants as c
 
@@ -33,13 +33,29 @@ class RootModel:
         if not os.path.exists(self.snapshot_dir):
             os.makedirs(self.snapshot_dir)
 
-    def set_data(self, train_list_file=None, valid_list_file=None, train_folder=None, valid_folder=None,
+    def set_test_data(self, test_list_file=None):
+        self.meta_data.update({'test_list_file': test_list_file})
+        self.data_handler.set_test_data(self.meta_data)
+        test_size = self.data_handler.get_testset_size()
+        batch_size = self.meta_data['batch_size']
+        self.nb_batches_test = int(np.round(test_size / batch_size))
+        self.number_of_views = self.data_handler.get_num_views()
+
+    def set_data(self,
+                 train_list_file=None,
+                 valid_list_file=None,
+                 train_folder=None,
+                 valid_folder=None,
+                 # test_list_file=None,
+                 # test_folder=None,
                  data=None, delimeter=' '):
 
         self.meta_data.update({  'train_list': train_list_file,
                                     'train_folder': train_folder,
                                     'valid_list': valid_list_file,
                                     'valid_folder': valid_folder
+                                    # 'test_list_file': test_list_file,
+                                    # 'test_folder': test_folder
                                     })
         print('Load all data to memory: ', self.meta_data['load_to_memory'])
         self.data_handler.set_data(data, self.meta_data)
@@ -120,9 +136,9 @@ class RootModel:
             print("epoch: ", self.epoch,  "  train iteration: ", traini+1, "/", self.nb_batches_train, \
                 ' batch_loss: ', loss_batch)
 
-    def print_valid_iteration(self, validi, loss_batch):
+    def print_valid_iteration(self, validi, loss_batch, total_batches):
         if validi % self.meta_data['display_iter'] == 0:
-            print("valid iteration: ", validi+1, "/", self.nb_batches_valid, \
+            print("valid iteration: ", validi+1, "/", total_batches, \
                 ' batch_loss: ', loss_batch)
 
     def print_current_epoch_history(self):
