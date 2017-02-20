@@ -343,17 +343,31 @@ class DataHandler:
         if batch_selection_method == 'random':
             if interclass_selection_method == 'random':
                 selected_indices = np.random.permutation(len(images))[:batch_size]
-            else:  # if method == 'uniform':
+            elif interclass_selection_method == 'uniform':
                 num_classes = len(label_map)
                 samples_per_class = batch_size//num_classes
-                samples_per_class = 1 if samples_per_class == 0 else samples_per_class
                 selected_indices = []
                 for i in range(num_classes):
                     indices = np.random.permutation(len(label_map[i]))[:samples_per_class]
+                    while len(indices) < samples_per_class:
+                        indices = np.append(indices, np.random.permutation(len(label_map[i]))[:samples_per_class-len(indices)])
                     selected_indices.extend([label_map[i][j] for j in indices])
-                if batch_size%num_classes != 0:
-                    indices = np.random.permutation(len(images))[:batch_size%num_classes]
-                    selected_indices.extend(indices)
+
+                # if samples_per_class == 0:  # num_classes > batch_size
+                    # choose random classes
+
+
+                # samples_per_class = 1 if samples_per_class == 0 else samples_per_class
+
+                if batch_size % num_classes != 0:
+                    selected_classes = np.random.permutation(num_classes)[:batch_size%num_classes]
+                    for i in range(len(selected_classes)):
+                        index = np.random.randint(len(label_map[selected_classes[i]]))
+                        selected_indices.extend([label_map[selected_classes[i]][index]])
+
+
+            else:
+                assert False
         elif batch_selection_method == 'iterative':
             selected_indices = np.array(range(iter, iter + batch_size))
             selected_indices[selected_indices >= len(images)] = \

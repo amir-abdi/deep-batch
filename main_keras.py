@@ -30,19 +30,19 @@ for i in selected_views:
     list_test.append(list_test_str + str(i))
     list_trainvalid.append(list_trainvalid_str + str(i))
 
-range_views = np.array([8, 7, 10, 12, 4, 7, 5])
+range_views = np.array([8, 7, 10, 12, 5, 7, 6])
 external_dict = {'range_views': range_views[list(selected_views)]}
 # --------------------------------------------------------------------
 
-if __name__ == "__main__TRAIN":
+if __name__ == "__main__":
     model = RootKerasModel(external_dict)
     model.set_data(train_list_file=list_trainvalid, valid_list_file=list_valid)
     model.set_solver()
     validation_accuracy = model.train_validate()
 
-if __name__ == "__main__": # test
+if __name__ == "__main__test": # test
     model = RootKerasModel(external_dict)
-    weight_file = 'models/RootKerasModel/snapshots/train_2017.2.18_6views_trainvalid/RootKerasModel_best.kerasmodel'
+    weight_file = 'models/RootKerasModel/snapshots/RootKerasModel_best.kerasmodel'
     model.set_test_data(test_list_file=list_test)
     accuracy = model.evaluate(weight_file)
     print("done.")

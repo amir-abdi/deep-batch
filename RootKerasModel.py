@@ -60,16 +60,19 @@ class RootKerasModel(RootModel):
             v[i] = conv3(v[i])
             v[i] = max3(v[i])
 
-            v[i] = TimeDistributed(Dropout(0.5))(v[i])
+            # v[i] = TimeDistributed(Dropout(0.5))(v[i])
+
             v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
-            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            # v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(30, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            # v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Convolution2D(50, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
-            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Convolution2D(100, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(150, 3, 3, activation='relu', border_mode='same', W_regularizer=l2(1)))(v[i])
             v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
             v[i] = TimeDistributed(Flatten())(v[i])
 
-            v[i] = TimeDistributed(Dense(128, activation='relu'))(v[i])
+            v[i] = TimeDistributed(Dense(1024, activation='relu'))(v[i])
             # v[i] = TimeDistributed(Dropout(0.5))(v[i])
             v[i] = LSTM(output_dim=1, name='pred'+str(i), activation='linear')(v[i])
             pred_list.append(v[i])
@@ -113,7 +116,7 @@ class RootKerasModel(RootModel):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
             'model_variant': '7view_keras',
-            'batch_size': 6,
+            'batch_size': 50,
 
             # SGD
             'base_lr': 0.001,
@@ -146,18 +149,18 @@ class RootKerasModel(RootModel):
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
 
             #preprocess
-            'resize_width': 200,
-            'resize_height': 200,
-            'crop_width': 200,
-            'crop_height': 200,
+            'resize_width': 150,
+            'resize_height': 150,
+            'crop_width': 150,
+            'crop_height': 150,
             'channels': 1,
             'random_rotate_method': 'uniform',  # 'uniform', 'normal'
             'random_translate_method': 'uniform',  # 'uniform', 'normal'
-            'random_translate_ratio_value': 10,
-            'random_rotate_value': 7,
+            'random_translate_ratio_value': 20,
+            'random_rotate_value': 5,
 
             # data handler parameters
-            'train_intraclass_selection': 'random',  # 'random', 'uniform'  applicable only if train_batch_method is random
+            'train_intraclass_selection': 'uniform',  # 'random', 'uniform'  applicable only if train_batch_method is random
             'train_batch_method': 'random',  # 'iterative', 'random'
             'split_ratio': 0.1,  # set to 0 if not splitting train and valid
             'load_to_memory': True,
@@ -268,7 +271,9 @@ class RootKerasModel(RootModel):
                     for view in range(num_views):
                         x_temp, y_temp = self.data_handler.get_batch(batch_size=batch_size_per_view,
                                                                                  train_valid='valid',
-                                                                                    batch_selection_method='iterative',
+                                                                                    # batch_selection_method='iterative',
+                                                                     batch_selection_method=meta_data['train_batch_method'],
+                                                                     interclass_selection_method=meta_data['train_intraclass_selection'],
                                                                                     view=view)
                         x_temp, y_temp = self.data_handler.preprocess(data_batch=x_temp, label_batch=y_temp,
                                                             crop_width=meta_data['crop_width'],
@@ -354,11 +359,15 @@ class RootKerasModel(RootModel):
                                                               )
                 x.append(x_temp)
                 y.append(y_temp)
-                input_args.update({'input' + str(view): np.asarray(x[view], )})
-                pred_args.update({'pred' + str(view): np.asarray(y[view], )})
+                input_args.update({'input' + str(view): np.asarray(x_temp, )})
+                pred_args.update({'pred' + str(view): np.asarray(y_temp, )})
 
             output = net_model.test_on_batch(input_args, pred_args)
             pred = net_model.predict_on_batch(input_args)
+            print (1, pred)
+            print (2, y)
+            print (3, output[num_views + 1:])
+            # pred = net_model.predict(input_args)
 
             loss_batch = sum(output[1:num_views]) / num_views
             acc_batch = self.calculate_accuracy_from_absErr(output[num_views + 1:])
