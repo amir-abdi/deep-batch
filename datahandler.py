@@ -56,14 +56,21 @@ class DataHandler:
         # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
         num_frames = self.meta_data['num_frames']
         # imgs shape: 2, 200, 200, 10
-        imgs = np.swapaxes(imgs, 1, 3)
-        imgs = np.swapaxes(imgs, 2, 3)
-        imgs = imgs.reshape(imgs.shape[0],  # batch size
-                            imgs.shape[1],     # num_frames
-                            imgs.shape[2],  # width
-                            imgs.shape[3],  # height
-                            1               # channels
-                            )
+        if self.meta_data['num_frames'] != 1:
+            imgs = np.swapaxes(imgs, 1, 3)
+            imgs = np.swapaxes(imgs, 2, 3)
+            imgs = imgs.reshape(imgs.shape[0],  # batch size
+                                imgs.shape[1],     # num_frames
+                                imgs.shape[2],  # width
+                                imgs.shape[3],  # height
+                                1               # channels
+                                )
+        else:
+            imgs = imgs.reshape(imgs.shape[0],  # batch size
+                                imgs.shape[1],  # width
+                                imgs.shape[2],  # height
+                                1  # channels
+                                )
         return imgs
 
     def _read_train_valid_from_list_file(self, train_list, valid_list):
@@ -247,7 +254,7 @@ class DataHandler:
                 if os.path.isfile(file_dir):
                     if load_to_memory:
                         if file_format == 'mat':
-                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=True)
+                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=False)
                             images.extend(cines)
                             for i in range(len(cines)):
                                 labels.append(label)
@@ -619,7 +626,7 @@ class DataHandler:
         if self.meta_data['num_frames'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
-            origh, origw = imgs[0].shape
+            origh, origw, num_frames = imgs[0].shape
 
         if [origw, origh] == [width, height]:
             return imgs, labels
