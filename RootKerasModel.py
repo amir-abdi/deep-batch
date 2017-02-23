@@ -1,6 +1,3 @@
-# import keras
-# from keras.models import Sequential
-# from keras.layers.extra import TimeDistributedConvolution2D, TimeDistributedMaxPooling2D
 from keras.layers.core import Dropout
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
@@ -17,17 +14,15 @@ import numpy as np
 import constants as c
 from keras import backend as K
 from keras.models import load_model
-
-
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from keras.engine.topology import Layer
+
+# import matplotlib
+# matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 class RootKerasModel(RootModel):
     def __init__(self, external_dict=None):
         super().__init__(external_dict)
-
 
     def model(self):
         self.net()
@@ -38,67 +33,43 @@ class RootKerasModel(RootModel):
         input_list = []
         for i in range(self.number_of_views):
             input_list.append(
-                Input(shape=(
+                Input(shape=( self.meta_data['num_frames'],
                               self.meta_data['crop_height'],
                               self.meta_data['crop_width'],
                               self.meta_data['channels']),
                               name='input'+str(i))
             )
-        # conv1 = TimeDistributed(Convolution2D(10, 10, 10, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))# W_regularizer=l2(1)))
-        # max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
-        # conv2 = TimeDistributed(Convolution2D(30, 5, 5, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))#W_regularizer=l2(1)))
-        # max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
-        # conv3 = TimeDistributed(Convolution2D(50, 3, 3, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))#W_regularizer=l2(1)))
-        # max3 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
-
-        conv1 = Convolution2D(10, 10, 10, activation='relu', border_mode='valid', init='normal',
-                                              W_regularizer=l2(1))  # W_regularizer=l2(1)))
-        max1 = MaxPooling2D((3, 3), strides=(2, 2))
-        conv2 = Convolution2D(30, 5, 5, activation='relu', border_mode='valid', init='normal',
-                                              W_regularizer=l2(1))  # W_regularizer=l2(1)))
-        max2 = MaxPooling2D((3, 3), strides=(2, 2))
-        conv3 = Convolution2D(50, 3, 3, activation='relu', border_mode='valid', init='normal',
-                                              W_regularizer=l2(1))  # W_regularizer=l2(1)))
-        max3 = MaxPooling2D((3, 3), strides=(2, 2))
+        conv1 = TimeDistributed(Convolution2D(8, 10, 10, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))
+        max1 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv2 = TimeDistributed(Convolution2D(16, 5, 5, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))
+        max2 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
+        conv3 = TimeDistributed(Convolution2D(32, 3, 3, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1)))
+        max3 = TimeDistributed(MaxPooling2D((3, 3), strides=(2, 2)))
 
         v = []
         pred_list = []
         for i in range(self.number_of_views):
-            # v.append(conv1(input_list[i]))
             v.append(input_list[i])
 
             v[i] = conv1(v[i])
-            # v[i] = max1(v[i])
+            v[i] = max1(v[i])
             v[i] = conv2(v[i])
-            # v[i] = max2(v[i])
+            v[i] = max2(v[i])
             v[i] = conv3(v[i])
             v[i] = max3(v[i])
-
             # v[i] = TimeDistributed(Dropout(0.5))(v[i])
-
-            v[i] = Convolution2D(60, 3, 3, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1))(v[i])#W_regularizer=l2(1)))(v[i])
-            # v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
-            v[i] = Convolution2D(70, 3, 3, activation='relu', border_mode='valid', init='normal', W_regularizer=l2(1))(v[i])#W_regularizer=l2(1)))(v[i])
-            v[i] = MaxPooling2D(pool_size=(3, 3), strides=(2, 2))(v[i])
-            # v[i] = TimeDistributed(Convolution2D(50, 3, 3, activation='relu', border_mode='same', init='normal'))(v[i])#W_regularizer=l2(1)))(v[i])
-            # v[i] = TimeDistributed(Convolution2D(100, 3, 3, activation='relu', border_mode='same', init='normal'))(v[i])#W_regularizer=l2(1)))(v[i])
-            # v[i] = TimeDistributed(Convolution2D(150, 3, 3, activation='relu', border_mode='same', init='normal'))(v[i])#W_regularizer=l2(1)))(v[i])
-            # v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
-            v[i] = Flatten()(v[i])
+            v[i] = TimeDistributed(Convolution2D(48, 3, 3, activation='relu', border_mode='same', init='normal', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(Convolution2D(64, 3, 3, activation='relu', border_mode='same', init='normal', W_regularizer=l2(1)))(v[i])
+            v[i] = TimeDistributed(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))(v[i])
+            v[i] = TimeDistributed(Flatten())(v[i])
 
             # v[i] = TimeDistributed(Dense(2048, activation='relu'))(v[i])
             # v[i] = TimeDistributed(Dense(1024, activation='relu'))(v[i])
             # v[i] = TimeDistributed(Dense(512, activation='relu'))(v[i])
             # v[i] = TimeDistributed(Dropout(0.5))(v[i])
-            # lstm1 = LSTM(output_dim=100, return_sequences=True, activation='tanh')
-            # lstm2 = LSTM(output_dim=200, return_sequences=False, activation='tanh')
-            dens1 = Dense(500, activation='relu')
-            dens2 = Dense(1, activation='linear', name='pred'+str(i))
-
-            # v[i] = lstm1(v[i])
-            # v[i] = lstm2(v[i])
-            v[i] = dens1(v[i])
-            v[i] = dens2(v[i])
+            v[i] = LSTM(output_dim=64, return_sequences=False, activation='tanh')(v[i])
+            # v[i] = Dense(512, activation='relu')(v[i])
+            v[i] = Dense(1, activation='linear', name='pred'+str(i))(v[i])
 
             pred_list.append(v[i])
 
@@ -110,13 +81,13 @@ class RootKerasModel(RootModel):
         net_model = self.net_model
         #todo: multiple GPUs
 
-        # epochs = self.meta_data['max_epoch']
-        # lrate = 0.0002
+        epochs = self.meta_data['max_epoch']
+        lrate = 0.0002
         # decay = lrate / epochs
         # opt = SGD(lr=self.meta_data['base_lr'],
         #               momentum=self.meta_data['momentum'],
-        #               decay=decay,  # self.meta_data['weight_decay'],
-        #               nesterov=False)
+        #               # decay=decay,  # self.meta_data['weight_decay'],
+        #               nesterov=True)
 
 
         opt = adam()
@@ -142,25 +113,15 @@ class RootKerasModel(RootModel):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
             'model_variant': '7view_keras',
-            'batch_size':6,  # all views together
+            'batch_size': 40,  # all views together
 
             # SGD
-            'base_lr': 0.001,
-            'stepsize': '1000',
-            'gamma': '0.5',  #lr_decay for caffe
-            'lr_decay': 0.5,
-            'max_iter': '1000000',
+            'base_lr': 0.01,
+            'lr_decay': 0.9,
             'momentum': 0.95,
             'weight_decay': 0.05,
-            'regularization_type': '\'"L2\"',
-            'lr_policy': '\"step\"',    # caffe
-
-            # solver
-            'solver_mode': 'GPU',
-            'type': '\"AdaGrad\"',      # caffe
 
             # display
-            'display': '100',           # caffe
             'display_iter': 1,
 
             # snapshot parameters
@@ -176,15 +137,15 @@ class RootKerasModel(RootModel):
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
 
             #preprocess
-            'resize_width': 100,
-            'resize_height': 100,
-            'crop_width': 100,
-            'crop_height': 100,
+            'resize_width': 200,
+            'resize_height': 200,
+            'crop_width': 200,
+            'crop_height': 200,
             'channels': 1,
             'random_rotate_method': 'uniform',  # 'uniform', 'normal'
             'random_translate_method': 'uniform',  # 'uniform', 'normal'
-            'random_translate_ratio_value': 20,
-            'random_rotate_value': 5,
+            'random_translate_ratio_value': 15,
+            'random_rotate_value': 7,
 
             # data handler parameters
             'train_intraclass_selection': 'uniform',  # 'random', 'uniform'  applicable only if train_batch_method is random
@@ -196,16 +157,16 @@ class RootKerasModel(RootModel):
             'delimiter': ',',
             'main_label_index': 0,
             'label_type': 'single_value',  # 'single_value', 'mask_image'
-            'scale_label': 0,  # 0: do not rescale, else: rescale all labels to the value
+            'scale_label': 1,  # 0: do not rescale, else: rescale all labels to the value
 
             # end of training parameters
-            'max_epoch': 60,
+            'max_epoch': 100,
             'min_epoch': 50,
             'terminate_if_not_improved_epoch': 10,
             'averaging_window': 15,
 
             #cine
-            'num_frames': 25
+            'num_frames': 20
 
         }
         return m
@@ -291,7 +252,8 @@ class RootKerasModel(RootModel):
 
 
             lr = K.get_value(self.net_model.optimizer.lr)
-            K.set_value(self.net_model.optimizer.lr, lr * self.meta_data['lr_decay'])
+            print('learning rate: {}'.format(lr))
+            # K.set_value(self.net_model.optimizer.lr, lr * self.meta_data['lr_decay'])
 
             #validation loop
             if self.is_validation_epoch():
@@ -366,7 +328,7 @@ class RootKerasModel(RootModel):
         print('model loaded from file: {:s}'.format(weight_file))
         meta_data = self.meta_data
         num_views = self.number_of_views
-        batch_size = meta_data['batch_size']
+        batch_size = self.number_of_views
         nb_batches_test = self.nb_batches_test
         batch_size_per_view = batch_size // num_views
 
@@ -375,8 +337,8 @@ class RootKerasModel(RootModel):
         accuracy = np.zeros((nb_batches_test, num_views))
         predictions = np.zeros((nb_batches_test, num_views))
         for testi in range(nb_batches_test):
-            x = []
-            y = []
+            # x = []
+            # y = []
 
             input_args = dict()
             pred_args = dict()
@@ -393,17 +355,17 @@ class RootKerasModel(RootModel):
                                                               normalize_to_1_scale=True,
                                                               add_unit_channel=True
                                                               )
-                x.append(x_temp)
-                y.append(y_temp)
+                # x.append(x_temp)
+                # y.append(y_temp)
                 input_args.update({'input' + str(view): np.asarray(x_temp, )})
                 pred_args.update({'pred' + str(view): np.asarray(y_temp, )})
 
             output = net_model.test_on_batch(input_args, pred_args)
             pred = net_model.predict_on_batch(input_args)
 
-            print(1, pred)
-            print(2, y)
-            print(3, output[num_views + 1:])
+            # print(1, pred)
+            # print(2, y)
+            # print(3, output[num_views + 1:])
             # pred = net_model.predict(input_args)
 
             loss_batch = sum(output[1:num_views]) / num_views

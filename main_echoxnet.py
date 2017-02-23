@@ -1,5 +1,5 @@
 #import caffe nets
-from nets.echo_net_x import EchoXNetModel
+from nets.caffe_echo_net_x import EchoXNetModel
 
 if __name__ == "__main__":
     data_folder = '/home/amir/echoProject/TMI/file_lists/'

@@ -1,4 +1,4 @@
-from nets.echo_quality_7 import EchoNet7
+from nets.caffe_echo_quality_7 import EchoNet7
 
 model_counter = 1
 

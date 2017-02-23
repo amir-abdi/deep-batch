@@ -7,7 +7,7 @@ import optunity.solvers.solver_registry
 import json
 
 # import caffe nets
-from nets.echo_net_x import EchoXNetModel
+from nets.caffe_echo_net_x import EchoXNetModel
 
 if __name__ == "__main__ PSO":
     data_folder = '/home/amir/echoData/AP4/'

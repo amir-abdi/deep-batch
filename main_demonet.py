@@ -1,5 +1,5 @@
 #import caffe nets
-from nets.demo_net import DemoNetModel
+from nets.caffe_demo_net import DemoNetModel
 
 model_counter = 1
 

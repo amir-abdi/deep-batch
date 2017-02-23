@@ -37,9 +37,10 @@ class RootModel:
         self.meta_data.update({'test_list_file': test_list_file})
         self.data_handler.set_test_data(self.meta_data)
         test_size = self.data_handler.get_testset_size()
+        self.number_of_views = self.data_handler.get_num_views()
+        self.meta_data.update({'batch_size': self.number_of_views})
         batch_size = self.meta_data['batch_size']
         self.nb_batches_test = int(np.round(test_size / batch_size))
-        self.number_of_views = self.data_handler.get_num_views()
 
     def set_data(self,
                  train_list_file=None,

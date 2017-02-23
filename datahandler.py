@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 import scipy.io as sio
 import gc
+import matplotlib.pyplot as plt
 
 class DataHandler:
     def __init__(self):
@@ -254,7 +255,7 @@ class DataHandler:
                 if os.path.isfile(file_dir):
                     if load_to_memory:
                         if file_format == 'mat':
-                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=False)
+                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=True)
                             images.extend(cines)
                             for i in range(len(cines)):
                                 labels.append(label)
@@ -360,17 +361,13 @@ class DataHandler:
                         indices = np.append(indices, np.random.permutation(len(label_map[i]))[:samples_per_class-len(indices)])
                     selected_indices.extend([label_map[i][j] for j in indices])
 
-                # if samples_per_class == 0:  # num_classes > batch_size
-                    # choose random classes
-
-
-                # samples_per_class = 1 if samples_per_class == 0 else samples_per_class
-
                 if batch_size % num_classes != 0:
                     selected_classes = np.random.permutation(num_classes)[:batch_size%num_classes]
                     for i in range(len(selected_classes)):
                         index = np.random.randint(len(label_map[selected_classes[i]]))
                         selected_indices.extend([label_map[selected_classes[i]][index]])
+
+
 
 
             else:
@@ -495,17 +492,17 @@ class DataHandler:
 
         for i in range(len(imgs)):
             if method == 'normal':
-                transX = np.random.normal(origw / 2, origw / value)
-                transY = np.random.normal(origh / 2, origh / value)
+                transX = np.random.normal(0, origw / value)
+                transY = np.random.normal(0, origh / value)
                 if np.abs(transX) > 2*origw/value:
                     transX = np.sign(transX)*2*origw / value
                 if np.abs(transY) > 2 * origh / value:
                     transY = np.sign(transY) * 2 * origh / value
             elif method == 'uniform':
-                transX = np.random.uniform(origw / 2 - (origw / value),
-                                           origw / 2 + (origw / value))
-                transY = np.random.normal(origh / 2 - (origh / value),
-                                          origh / 2 + (origh / value))
+                transX = np.random.uniform(-(origw / value),
+                                           (origw / value))
+                transY = np.random.uniform(- (origh / value),
+                                           (origh / value))
 
             M = np.float32([[1, 0, transX], [0, 1, transY]])
             imgs[i] = dst = cv2.warpAffine(imgs[i], M, (origw, origh))
