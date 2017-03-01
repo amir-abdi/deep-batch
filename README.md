@@ -17,7 +17,7 @@ The framework is implemented based on the following class diagram:
 
     RootModel                  # Abstract class  [shared functionalities between Caffe and Keras]
     ├── RootCaffeModel         # Abstract class  [Caffe-specific functionality]
-        ├── MyCaffeNet         # A sample Caffe model which implements abstract methods
+    ├── MyCaffeNet         # A sample Caffe model which implements abstract methods
     ├── RootKerasModel         # Abstract class  [Keras-specific functionality]
         ├── MyKerasNet         # A sample Keras model which implements abstract methods
 
