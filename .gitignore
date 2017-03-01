@@ -100,11 +100,12 @@ ENV/
 *.state
 *.npy
 
-#mine
-sandbox
-
 #keras
 *.kerasmodel
 
 #pycharm
 *.xml
+
+#mine and private
+sandbox
+trained/

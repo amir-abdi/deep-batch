@@ -55,9 +55,9 @@ class DataHandler:
     def match_TensorFlow_shape(self, imgs):
         # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
         # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
         # imgs shape: 2, 200, 200, 10
-        if self.meta_data['num_frames'] != 1:
+        if self.meta_data['sequence_length'] != 1:
             imgs = np.swapaxes(imgs, 1, 3)
             imgs = np.swapaxes(imgs, 2, 3)
             imgs = imgs.reshape(imgs.shape[0],  # batch size
@@ -235,14 +235,12 @@ class DataHandler:
         load_to_memory = self.meta_data['load_to_memory']
         multi_cine_per_patient = self.meta_data['multi_cine_per_patient']
         file_format = self.meta_data['file_format']
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
         images = []
         labels = []
         counter = 0
         num_lines = sum(1 for line in open(list_file))
 
-
-        # init_memory = self.memory_usage_ps()
         print('opening list file: {0}'.format(list_file))
         with open(list_file) as f:
             for line in f:
@@ -332,7 +330,7 @@ class DataHandler:
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
         label_type = self.meta_data['label_type']
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
 
         if view is None:
             assert False
@@ -419,7 +417,7 @@ class DataHandler:
 
     def read_patient_from_mat(self, file, multi_cine_per_patient=False):
         cine_selection_if_not_multi = self.meta_data['cine_selection_if_not_multi']
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
         matfile = sio.loadmat(file)
         cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
         cines = []
@@ -452,7 +450,7 @@ class DataHandler:
     def get_data_batch_iterative(self, batch_size, train_valid='train', view=None):
         load_to_memory = self.meta_data['load_to_memory']
         main_label_index = self.meta_data['main_label_index']
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
         label_type = self.meta_data['label_type']
 
         if view is None:
@@ -493,7 +491,7 @@ class DataHandler:
     def translate_random(self, imgs, labels, value=20):
         label_type = self.meta_data['label_type']
         method = self.meta_data['random_translate_method']
-        if self.meta_data['num_frames'] != 1:
+        if self.meta_data['sequence_length'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -548,7 +546,7 @@ class DataHandler:
 
     def crop_middle(self, imgs, labels, crop_width, crop_height):
         label_type = self.meta_data['label_type']
-        if self.meta_data['num_frames'] != 1:
+        if self.meta_data['sequence_length'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -582,7 +580,7 @@ class DataHandler:
     def rotate_random(self, imgs, labels, value):
         label_type = self.meta_data['label_type']
         method = self.meta_data['random_rotate_method']
-        if self.meta_data['num_frames'] != 1:
+        if self.meta_data['sequence_length'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw = imgs[0].shape
@@ -628,7 +626,7 @@ class DataHandler:
 
     def resize(self, imgs, labels, width, height):
         label_type = self.meta_data['label_type']
-        if self.meta_data['num_frames'] != 1:
+        if self.meta_data['sequence_length'] != 1:
             origh, origw, num_frames = imgs[0].shape
         else:
             origh, origw, num_frames = imgs[0].shape

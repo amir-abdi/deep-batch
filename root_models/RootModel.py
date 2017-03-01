@@ -71,7 +71,16 @@ class RootModel:
             self.meta_data = self.create_meta_data()
             if self.external_meta_data is not None:
                 self.meta_data.update(self.external_meta_data)
+            self.meta_data.update(self.root_level_meta_data())
         return self.meta_data
+
+    def root_level_meta_data(self):
+        root_meta = {
+            'snapshot_fld': self.snapshot_dir,
+            'model_fld': self.model_dir,
+            'snapshot_str': self.__class__.__name__  # update snapshot_str in the external metadata or here to whatever
+        }
+        return root_meta
 
     def load_state(self, state_file):
         print('loading state from ', state_file)

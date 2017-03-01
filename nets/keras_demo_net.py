@@ -23,67 +23,63 @@ class KerasEchoQuality7Views(RootKerasModel):
     def create_meta_data(self):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
-            'model_variant': '7view_keras',
-            'batch_size': 40,  # all views together
-
-            # SGD
-            'base_lr': 0.01,
-            'lr_decay': 0.9,
-            'momentum': 0.95,
-            'weight_decay': 0.05,
+            # optimizer
+            'solver': 'adam',
+            'base_lr': 0.001,
+            'solver_mode': 'GPU',
+            'momentum': 0.9,
+            'momentum2': 0.999,
+            'regularization_type': 'L2',
 
             # display
-            'display_iter': 1,
+            'display_iter': 1,  # display results after X iterations
 
             # snapshot parameters
-            'snapshot_fld': self.snapshot_dir,
-            'model_fld': self.model_dir,
-            'snapshot_approach': ['best', 'last'],  # 'last', 'best', 'step'
-            'snapshot_epochs': 1,  # only used if 'step' is included in snapshot approach
-            'caffe_solver_state_epochs': 1000,  # only used if 'step' is included in snapshot approach; handled by caffe
-            'snapshot_str': self.__class__.__name__,  # update snapshot_str in the external metadata or here to whatever
+            'snapshot_approach': ['best', 'last'],  # values={'last', 'best', 'step'}, use multiple if needed
+            'snapshot_epochs': 1,  # [if step is included in snapshot approach] snapshot after X epochs
 
             # validation
-            'test_interval': 1,
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
-
-            # preprocess
-            'resize_width': 200,
-            'resize_height': 200,
-            'crop_width': 200,
-            'crop_height': 200,
-            'channels': 1,
-            'random_rotate_method': 'uniform',  # 'uniform', 'normal'
-            'random_translate_method': 'uniform',  # 'uniform', 'normal'
-            'random_translate_ratio_value': 15,
-            'random_rotate_value': 7,
-
-            # data handler parameters
-            'train_intraclass_selection': 'uniform',
-        # 'random', 'uniform'   [only applies if train_batch_method is random]
-            'train_batch_method': 'random',  # 'iterative', 'random'
-            'split_ratio': 0.1,  # set to 0 if not splitting train and valid
-            'load_to_memory': False,
-            'subtract_mean': False,
-            'file_format': 'mat',  # 'mat', 'image'
-            'delimiter': ',',
-            'main_label_index': 0,
-            'label_type': 'single_value',  # 'single_value', 'mask_image'
-            'scale_label': 1,  # 0: do not rescale, else: rescale all labels to the value
-
-            'multi_cine_per_patient': True,
-            'cine_selection_if_not_multi': 'random',
-        # 'random', 'first'  [only applies if multi_cine_per_patient is false]
+            'test_interval': 1,  # [if test_approach is iter] number of test iterations before running validation
 
             # end of training parameters
-            'max_epoch': 100,
-            'min_epoch': 50,
-            'terminate_if_not_improved_epoch': 10,
-            'averaging_window': 15,
+            'max_epoch': 100,  # maximum number of epochs to train
+            'min_epoch': 50,  # minimum number of epochs to train
+            'terminate_if_not_improved_epoch': 10,  # terminate if validation accuracy had this many decreasing patterns
+            'averaging_window': 15,  # averaging window to calculate validation accuracy
 
             # cine
-            'num_frames': 20
+            'sequence_length': 20,  # sequence length
 
+            # DataHandler: preprocessing
+            'batch_size': 40,
+            'channels': 1,  # number of channels for sample image
+            'resize_width': 200,  # resize input image width, prior to cropping
+            'resize_height': 200,  # resize input image height, prior to cropping
+            'crop_width': 200,  # crop the middle square with this width
+            'crop_height': 200,  # crop the middle square with this height
+            'random_rotate_method': 'uniform',  # values={'uniform', 'normal'}
+            'random_rotate_value': 7,  # MeanValue of normal method; LimitValue of uniform method
+            'random_translate_method': 'uniform',  # values={'uniform', 'normal'}
+            'random_translate_ratio_value': 15,  # MeanValue of normal method; LimitValue of uniform method
+            'scale_label': 1,  # values={0: do not rescale, else: rescale all labels to the given value}
+            'subtract_mean': False,  # calculate the mean value of training data, and subtract it from each sample
+
+            # DataHandler: reading and preparing training-validation or test data
+            'split_ratio': 0.1,  # splitting ratio for train-validation (set to 0 if not splitting train and valid)
+            'file_format': 'mat',  # values={'mat', 'image'}
+            'delimiter': ',',  # list_file delimiter
+            'load_to_memory': False,  # load all training-validation or testing data into memory before training
+
+            # DataHandler: label parameters
+            'label_type': 'single_value',  # values={'single_value', 'mask_image'}
+            'main_label_index': 0,  # [if list file has multiple label values, which label index to use for training]
+
+            # DataHandler: batch selection strategies
+            'train_intraclass_selection': 'uniform',  # [if train_batch_method is random]; values={'random', 'uniform'}
+            'train_batch_method': 'random',  # values={'iterative', 'random'}
+            'cine_selection_if_not_multi': 'random',  # [if multi_cine_per_patient is false] values={'random', 'first'}
+            'multi_cine_per_patient': True  # extract multiple training sequences from a single input sample
         }
         return m
 
@@ -299,11 +295,11 @@ class KerasEchoQuality7Views(RootKerasModel):
 
     def net(self):
         #todo: dropout
-        num_frames = self.meta_data['num_frames']
+        num_frames = self.meta_data['sequence_length']
         input_list = []
         for i in range(self.number_of_views):
             input_list.append(
-                Input(shape=( self.meta_data['num_frames'],
+                Input(shape=( self.meta_data['sequence_length'],
                               self.meta_data['crop_height'],
                               self.meta_data['crop_width'],
                               self.meta_data['channels']),

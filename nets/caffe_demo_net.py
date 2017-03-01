@@ -1,7 +1,5 @@
 import math
-
 import numpy as np
-
 from root_models.caffe.RootCaffeModel import RootCaffeModel
 from root_models.caffe.layers import *
 from utilities import constants as c
@@ -48,52 +46,77 @@ class DemoNetModel(RootCaffeModel):
     def create_meta_data(self):
         # todo: save learning rate in snapshot state, and load it. calculate learning rate after each iteration
         m = {
-            'model_variant': 'DemoNet',
-            'batch_size': 3,
-            'channels': 1,
-            'im_width': 267,
-            'im_height': 267,
-            'base_lr': '0.0002',
-            'display': '100',
-            'type': '\"AdaGrad\"',
-            'lr_policy': '\"step\"',
-            'stepsize': '1000',
-            'gamma': '0.5',
-            'max_iter': '1000000',
-            'momentum': '0.95',
-
-            'weight_decay': '0.05',
-            'regularization_type': '\'"L2\"',
-
-            'solver_mode': 'GPU',
+            # caffe-specific parameters
+            'caffe_display': 100,
+            'caffe_max_iter': 1000000,
+            'caffe_weight_decay': 0.005,
+            'caffe_lr_policy': 'fixed',
+            'caffe_stepsize': 1000,  # [if solver is SGD]
+            'caffe_gamma': 0.5,  # [if solver is SGD]
 
             # snapshot parameters
             'snapshot_fld': self.snapshot_dir,
             'model_fld': self.model_dir,
-            'snapshot_approach': ['best', 'last'],  # 'last', 'best', 'step'
-            'snapshot_epochs': 100,  # only used if 'step' is included in snapshot approach
             'caffe_solver_state_epochs': 1000,  # only used if 'step' is included in snapshot approach; handled by caffe
             'snapshot_str': self.__class__.__name__,  # update snapshot_str in the external metadata or here to whatever
 
-            'test_interval': 1,
+            # optimizer
+            'solver': 'adam',
+            'base_lr': 0.001,
+            'solver_mode': 'GPU',
+            'momentum': 0.9,
+            'momentum2': 0.999,
+            'regularization_type': 'L2',
+
+            # display
+            'display_iter': 1,  # display results after X iterations
+
+            # snapshot parameters
+            'snapshot_approach': ['best', 'last'],  # values={'last', 'best', 'step'}, use multiple if needed
+            'snapshot_epochs': 1,  # [if step is included in snapshot approach] snapshot after X epochs
+
+            # validation
             'test_approach': 'epoch',  # 'epoch', 'iter', 'none'; by setting as 'epoch', 'test_interval' is ignored
-            'label_type': 'single_value',  # 'single_value', 'mask_image'
-            'display_iter': 1,
-            'resize_width': 400,
-            'resize_height': 267,
-            'random_translate_std_ratio': 20,
-            'random_rotate_degree': 7,
-            'train_batch_method': 'uniform',  # 'random', 'uniform'
-            'split_ratio': 0.1,  # set to 0 if not splitting train and valid
-            'load_to_memory': True,
-            'subtract_mean': False,
-            'image_format': '.jpg',
+            'test_interval': 1,  # [if test_approach is iter] number of test iterations before running validation
 
             # end of training parameters
-            'max_epoch': 60,
-            'min_epoch': 30,
-            'terminate_if_not_improved_epoch': 5,
-            'averaging_window': 15
+            'max_epoch': 100,  # maximum number of epochs to train
+            'min_epoch': 50,  # minimum number of epochs to train
+            'terminate_if_not_improved_epoch': 10,  # terminate if validation accuracy had this many decreasing patterns
+            'averaging_window': 15,  # averaging window to calculate validation accuracy
+
+            # cine
+            'sequence_length': 20,  # sequence length
+
+            # DataHandler: preprocessing
+            'batch_size': 40,
+            'channels': 1,  # number of channels for sample image
+            'resize_width': 200,  # resize input image width, prior to cropping
+            'resize_height': 200,  # resize input image height, prior to cropping
+            'crop_width': 200,  # crop the middle square with this width
+            'crop_height': 200,  # crop the middle square with this height
+            'random_rotate_method': 'uniform',  # values={'uniform', 'normal'}
+            'random_rotate_value': 7,  # MeanValue of normal method; LimitValue of uniform method
+            'random_translate_method': 'uniform',  # values={'uniform', 'normal'}
+            'random_translate_ratio_value': 15,  # MeanValue of normal method; LimitValue of uniform method
+            'scale_label': 1,  # values={0: do not rescale, else: rescale all labels to the given value}
+            'subtract_mean': False,  # calculate the mean value of training data, and subtract it from each sample
+
+            # DataHandler: reading and preparing training-validation or test data
+            'split_ratio': 0.1,  # splitting ratio for train-validation (set to 0 if not splitting train and valid)
+            'file_format': 'mat',  # values={'mat', 'image'}
+            'delimiter': ',',  # list_file delimiter
+            'load_to_memory': False,  # load all training-validation or testing data into memory before training
+
+            # DataHandler: label parameters
+            'label_type': 'single_value',  # values={'single_value', 'mask_image'}
+            'main_label_index': 0,  # [if list file has multiple label values, which label index to use for training]
+
+            # DataHandler: batch selection strategies
+            'train_intraclass_selection': 'uniform',  # [if train_batch_method is random]; values={'random', 'uniform'}
+            'train_batch_method': 'random',  # values={'iterative', 'random'}
+            'cine_selection_if_not_multi': 'random',  # [if multi_cine_per_patient is false] values={'random', 'first'}
+            'multi_cine_per_patient': True  # extract multiple training sequences from a single input sample
         }
         return m
 

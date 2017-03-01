@@ -67,22 +67,22 @@ class RootCaffeModel(RootModel):
     def solver(self):
         solverprototxt = tools.CaffeSolver(trainnet_prototxt_path=osp.join(self.model_dir, "trainnet.prototxt"),
                                            testnet_prototxt_path=osp.join(self.model_dir, "valnet.prototxt"))
-
-        solverprototxt.sp['display'] = self.meta_data['display']
-        solverprototxt.sp['base_lr'] = self.meta_data['base_lr']
-        solverprototxt.sp['gamma'] = self.meta_data['gamma']
-        solverprototxt.sp['lr_policy'] = self.meta_data['lr_policy']
-        solverprototxt.sp['max_iter'] = self.meta_data['max_iter']
-        solverprototxt.sp['momentum'] = self.meta_data['momentum']
-        solverprototxt.sp['weight_decay'] = self.meta_data['weight_decay']
         solverprototxt.sp['solver_mode'] = self.meta_data['solver_mode']
-        solverprototxt.sp['stepsize'] = self.meta_data['stepsize']
-        solverprototxt.sp['gamma'] = self.meta_data['gamma']
-        solverprototxt.sp['snapshot_prefix'] = '\"' + self.snapshot_dir + '\"'
-        solverprototxt.sp['test_iter'] = '1'
 
-        solverprototxt.sp['snapshot'] = '1000000'  # fake value
-        solverprototxt.sp['test_interval'] = '1000000'  # fake value
+        solverprototxt.sp['display'] = str(self.meta_data['caffe_display'])
+        solverprototxt.sp['base_lr'] = str(self.meta_data['base_lr'])
+        solverprototxt.sp['max_iter'] = str(self.meta_data['caffe_max_iter'])
+        solverprototxt.sp['momentum'] = str(self.meta_data['momentum'])
+        solverprototxt.sp['weight_decay'] = str(self.meta_data['caffe_weight_decay'])
+        solverprototxt.sp['stepsize'] = str(self.meta_data['caffe_stepsize'])
+        solverprototxt.sp['gamma'] = str(self.meta_data['caffe_gamma'])
+        solverprototxt.sp['lr_policy'] = '\"' + self.meta_data['caffe_lr_policy'] + '\"'
+        solverprototxt.sp['regularization_type'] = '\"' + self.meta_data['regularization_type'] + '\"'
+        solverprototxt.sp['snapshot_prefix'] = '\"' + self.snapshot_dir + '\"'
+
+        solverprototxt.sp['snapshot'] = '1000000'  # dummmy value
+        solverprototxt.sp['test_interval'] = '1000000'  # dummmy value
+        solverprototxt.sp['test_iter'] = '1000000000'  # dummmy value as we handle our own validation
 
         solverprototxt.write(osp.join(self.model_dir, 'solver.prototxt'))
 
@@ -132,19 +132,24 @@ class RootCaffeModel(RootModel):
     def history(self):
         return self.history
 
-    def initialize_solver(self, solver_type):
+    def initialize_solver(self):
         print("initializing solver...")
+        solver_type = self.meta_data['solver']
         if solver_type == 'SGD':
+            solver = caffe.SGDSolver(osp.join(self.model_dir, 'solver.prototxt'))
+            solver.test_nets[0].share_with(solver.net)
+            return solver
+        elif solver_type == 'adam':
             solver = caffe.SGDSolver(osp.join(self.model_dir, 'solver.prototxt'))
             solver.test_nets[0].share_with(solver.net)
             return solver
         else:
             print('Other solver types are not implemented. However, they are supposed to have the same signature')
 
-    def set_solver(self, solver_type='SGD', snapshot_weight=None,
+    def set_solver(self, snapshot_weight=None,
                    snapshot_state=None, snapshot_history=None):
         self.model()
-        self.solver = self.initialize_solver(solver_type)
+        self.solver = self.initialize_solver()
         if snapshot_weight is not None:
             solver = self.load_snapshot(snapshot_weight, self.solver)
         if snapshot_state is not None:
