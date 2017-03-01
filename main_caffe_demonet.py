@@ -1,17 +1,18 @@
 from utilities.tools import *
-from nets.caffe_demo_net import DemoNetModel
+from nets.caffe_demo_net import CaffeDemoClassificationNet
+from keras.datasets import cifar10
+
 
 if __name__ == "__main__":
+    data = [[None], [None], [None], [None]]
+    (X_train, y_train), (X_valid, y_valid) = cifar10.load_data()
+    data[0][0] = X_train
+    data[1][0] = y_train
+    data[2][0] = X_valid
+    data[3][0] = y_valid
 
-    download_dataset("http://www.cs.utoronto.ca/~kriz/cifar-10-python.tar.gz", "cifar10.tar.gz")
-    data = unpickle('data/cifar-10-batches-py/data_batch_2')
-
-
-    data_folder = '/home/amir/echoProject/TMI/file_lists/'
-    list_train = data_folder + 'list_train_demo.txt'
-    list_test = data_folder + 'list_test_demo.txt'
-    model = DemoNetModel()
-    model.set_data(train_list_file=list_train, valid_list_file=list_test)
+    model = CaffeDemoClassificationNet()
+    model.set_trainvalid_data(data=data)
     model.set_solver()
     validation_accuracy = model.train_validate()
 

@@ -5,11 +5,7 @@ sys.path.append(directory_settings.caffe_root + 'examples/pycaffe/layers')  # th
 sys.path.append(directory_settings.caffe_root + 'examples/pycaffe')  # the tools folder
 import caffe
 import tools
-
-from root_models.caffe.layers import *
-caffe.set_mode_gpu()
-caffe.set_device(0)
-
+from root_models.caffe.mylayers import *
 from abc import ABCMeta, abstractmethod
 from root_models.RootModel import RootModel
 
@@ -24,6 +20,10 @@ class RootCaffeModel(RootModel):
 
     def __init__(self, external_params=None):
         super().__init__(external_params)
+        if self.meta_data['solver_mode'] == 'GPU':
+            caffe.set_mode_gpu()
+        else:
+            caffe.set_mode_cpu()
 
     def model(self):
         workdir = self.model_dir
@@ -41,7 +41,7 @@ class RootCaffeModel(RootModel):
     def initialize_net(self):
         n = caffe.NetSpec()
         # this is just to fill the space
-        n.data, n.label = L.MemoryData(batch_size=1, height=1, width=1, channels=1, ntop=2)
+        n.data, n.label = layers.MemoryData(batch_size=1, height=1, width=1, channels=1, ntop=2)
         return n
 
     def finalize_net(self, n, train_valid):
@@ -49,18 +49,18 @@ class RootCaffeModel(RootModel):
 
         if train_valid == 'train':
             prototxt_str = data_label(prototxt_str,
-                                      meta_data['batch_size'],
-                                      meta_data['channels'],
-                                      meta_data['crop_height'],
-                                      meta_data['crop_width'],
-                                      meta_data['label_type'])
+                                      self.meta_data['batch_size'],
+                                      self.meta_data['channels'],
+                                      self.meta_data['crop_height'],
+                                      self.meta_data['crop_width'],
+                                      self.meta_data['label_type'])
         elif train_valid == 'valid':
             prototxt_str = data(prototxt_str,
-                                meta_data['batch_size'],
-                                meta_data['channels'],
-                                meta_data['crop_height'],
-                                meta_data['crop_width'],
-                                meta_data['label_type'])
+                                self.meta_data['batch_size'],
+                                self.meta_data['channels'],
+                                self.meta_data['crop_height'],
+                                self.meta_data['crop_width'],
+                                self.meta_data['label_type'])
         return prototxt_str
 
 

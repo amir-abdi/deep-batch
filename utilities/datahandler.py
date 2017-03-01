@@ -6,6 +6,7 @@ import numpy as np
 import scipy.io as sio
 from PIL import Image
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 class DataHandler:
@@ -14,12 +15,20 @@ class DataHandler:
         self.train_labels = None
         self.test_labels = None
         self.valid_labels = None
-        # self.view_iterator = 0
 
-    def preprocess(self, data_batch, label_batch, rotate_degree=None, translate_std_ratio=None,
-                   crop_width=None, crop_height=None, resize_width=None, resize_height=None,
-                   normalize_to_1_scale=False, add_unit_channel=False):
-        # todo: test every step by imshow
+    def preprocess(self, data_batch, label_batch):
+        meta_data = self.meta_data
+        rotate_degree = meta_data['random_rotate_value']
+        translate_std_ratio = meta_data['random_translate_ratio_value']
+        crop_width = meta_data['crop_width']
+        crop_height = meta_data['crop_height']
+        resize_width = meta_data['resize_width']
+        resize_height = meta_data['resize_height']
+        scale_data_value = meta_data['scale_data']
+        scale_label_value = meta_data['scale_label']
+        stream_specific_scale_label = meta_data['stream_specific_scale_label']
+        reshape_batch = meta_data['reshape_batch']
+
         # cv2.imshow('original', data_batch[0])
         if (resize_height, resize_width) is not (None, None):
             data_batch, label_batch = self.resize(data_batch, label_batch, resize_width, resize_height)
@@ -30,47 +39,70 @@ class DataHandler:
         if translate_std_ratio is not None:
             self.translate_random(data_batch, label_batch, translate_std_ratio)
         if (crop_height, crop_width) is not (None, None):
-            # if translate_std_ratio is not None:
-            #     data_batch, label_batch = self.crop_random(data_batch, label_batch, crop_width, crop_height, translate_std_ratio)
-            # else:
             data_batch, label_batch = self.crop_middle(data_batch, label_batch, crop_width, crop_height)
-        if normalize_to_1_scale:
-            data_batch = [img / 255. for img in data_batch]
-        # return self.convert_to_npArray(data_batch, label_batch, scale_to_1=normalize_to_1_scale)
 
-        if self.meta_data['scale_label'] != 0:
-            label_batch = self.scale_label(label_batch, self.meta_data['range_views'], self.current_view)
+        if scale_data_value != 1:
+            data_batch = self.scale_data(data_batch, scale_data_value)
+        if stream_specific_scale_label is not None:
+            label_batch = self.streamspecific_scale_label(label_batch, stream_specific_scale_label, self.current_view)
+
         data_batch = np.asarray(data_batch)
+        if reshape_batch == 'tf':
+            data_batch = self.match_TensorFlow_shape(data_batch)
+        elif reshape_batch == 'caffe':
+            data_batch = self.match_caffe_shape(data_batch)
 
-        # if add_unit_channel and data_batch.ndim != 4:
-        data_batch = self.match_TensorFlow_shape(data_batch)
         return (data_batch, label_batch)
 
-    def scale_label(self, labels, view_ranges, current_view):
-        temp = [l/view_ranges[current_view] for l in labels]
-        # some values were above 1
+    def scale_data(self, data_batch, scale_data_value):
+        return [img / scale_data_value for img in data_batch]
+
+    def streamspecific_scale_label(self, labels, stream_label_ranges, current_stream):
+        temp = [l / stream_label_ranges[current_stream] for l in labels]
+        # fix error in labels if above 1
         temp = [label if label <= 1 else 1 for label in temp]
         return temp
+
+    def match_caffe_shape(self, imgs):
+        num_seq = self.meta_data['sequence_length']
+        channels = self.meta_data['channels']
+
+        if self.meta_data['sequence_length'] != 1:
+            raise NotImplementedError
+        else:
+            imgs = np.swapaxes(imgs, 1, 3)
+            imgs = np.swapaxes(imgs, 2, 3)
+
+            if channels == 1:
+                imgs = imgs.reshape(imgs.shape[0],  # batch size
+                                    channels,  # channels
+                                    imgs.shape[1],  # width
+                                    imgs.shape[2],  # height
+                                    )
+            else:
+                # todo: test
+                pass
+        return imgs
 
     def match_TensorFlow_shape(self, imgs):
         # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
         # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
-        num_frames = self.meta_data['sequence_length']
-        # imgs shape: 2, 200, 200, 10
+        num_seq = self.meta_data['sequence_length']
+        channels = self.meta_data['channels']
         if self.meta_data['sequence_length'] != 1:
             imgs = np.swapaxes(imgs, 1, 3)
             imgs = np.swapaxes(imgs, 2, 3)
             imgs = imgs.reshape(imgs.shape[0],  # batch size
-                                imgs.shape[1],     # num_frames
+                                imgs.shape[1],  # num_frames
                                 imgs.shape[2],  # width
                                 imgs.shape[3],  # height
-                                1               # channels
+                                channels        # channels
                                 )
         else:
             imgs = imgs.reshape(imgs.shape[0],  # batch size
                                 imgs.shape[1],  # width
                                 imgs.shape[2],  # height
-                                1  # channels
+                                channels        # channels
                                 )
         return imgs
 
@@ -286,11 +318,14 @@ class DataHandler:
         return images, labels
 
     def create_label_map(self, labels, main_label_index=0):
-        number_of_views = len(labels)
+        # if self.meta_data['multi_stream']:
+        number_of_streams = len(labels)
+        # else:
+        #     number_of_streams = 1
         labels_map = []
         label_headers = []
-        for view in range(number_of_views):
-            sub_labels = labels[view]
+        for stream in range(number_of_streams):
+            sub_labels = labels[stream]
             sub_main_labels = []
             for t in range(len(sub_labels)):
                 sub_main_labels.append(sub_labels[t][main_label_index])
@@ -324,34 +359,33 @@ class DataHandler:
         else:
             return 0
 
-    def get_batch(self, batch_size, train_valid='train', batch_selection_method ='random',
-                  interclass_selection_method='uniform', view=None):
-        self.current_view = view
+    def get_batch(self, batch_size, train_valid='train', data_traversing='random',
+                  stream_index=0):
+        interclass_selection_method = self.meta_data['interclass_batch_selection']
+        self.current_view = stream_index
         main_label_index = self.meta_data['main_label_index']
         load_to_memory = self.meta_data['load_to_memory']
         label_type = self.meta_data['label_type']
         num_frames = self.meta_data['sequence_length']
-
-        if view is None:
-            assert False
+        multi_stream_flag = self.meta_data['multi_stream']
 
         if train_valid == 'train':
-            images = self.train_images[view]
-            labels = self.train_labels[view]
-            label_map = self.train_label_map[view]
-            iter = self.train_iterator[view]
+            images = self.train_images[stream_index]
+            labels = self.train_labels[stream_index]
+            label_map = self.train_label_map[stream_index]
+            iter = self.train_iterator[stream_index]
         elif train_valid == 'valid':
-            images = self.valid_images[view]
-            labels = self.valid_labels[view]
-            label_map = self.valid_label_map[view]
-            iter = self.valid_iterator[view]
+            images = self.valid_images[stream_index]
+            labels = self.valid_labels[stream_index]
+            label_map = self.valid_label_map[stream_index]
+            iter = self.valid_iterator[stream_index]
         elif train_valid == 'test':
-            images = self.test_images[view]
-            labels = self.test_labels[view]
-            label_map = self.test_label_map[view]
-            iter = self.test_iterator[view]
+            images = self.test_images[stream_index]
+            labels = self.test_labels[stream_index]
+            label_map = self.test_label_map[stream_index]
+            iter = self.test_iterator[stream_index]
 
-        if batch_selection_method == 'random':
+        if data_traversing == 'random':
             if interclass_selection_method == 'random':
                 selected_indices = np.random.permutation(len(images))[:batch_size]
             elif interclass_selection_method == 'uniform':
@@ -375,17 +409,17 @@ class DataHandler:
 
             else:
                 assert False
-        elif batch_selection_method == 'iterative':
+        elif data_traversing == 'iterative':
             selected_indices = np.array(range(iter, iter + batch_size))
             selected_indices[selected_indices >= len(images)] = \
                 selected_indices[selected_indices >= len(images)] - len(images)
             iter = selected_indices[batch_size - 1] + 1  # todo: switch to view specific iter
             if train_valid == 'train':
-                self.train_iterator[view] = iter
+                self.train_iterator[stream_index] = iter
             elif train_valid == 'valid':
-                self.valid_iterator[view] = iter
+                self.valid_iterator[stream_index] = iter
             elif train_valid == 'test':
-                self.test_iterator[view] = iter
+                self.test_iterator[stream_index] = iter
 
         # print("view: {}".format(view), "  iter: {}".format(iter))
 
@@ -446,55 +480,10 @@ class DataHandler:
         gc.collect()
         return cines
 
-    # obsolete function
-    def get_data_batch_iterative(self, batch_size, train_valid='train', view=None):
-        load_to_memory = self.meta_data['load_to_memory']
-        main_label_index = self.meta_data['main_label_index']
-        num_frames = self.meta_data['sequence_length']
-        label_type = self.meta_data['label_type']
-
-        if view is None:
-            assert False
-
-        if train_valid == 'train':
-            # src_images = self.train_images
-            # src_labels = self.train_labels
-            src_images = self.train_images[view]
-            src_labels = self.train_labels[view]
-            iter = self.train_iterator
-        elif train_valid == 'valid':
-            # src_images = self.valid_images
-            # src_labels = self.valid_labels
-            src_images = self.valid_images[view]
-            src_labels = self.valid_labels[view]
-            iter = self.valid_iterator
-        selected_indices = np.array(range(iter, iter+batch_size))
-        selected_indices[selected_indices>=len(src_images)] = selected_indices[selected_indices>=len(src_images)]-len(src_images)
-        iter = selected_indices[batch_size-1]+1 #todo: switch to view specific iter
-        if load_to_memory:
-            images = [src_images[i] for i in selected_indices]
-            # labels = [src_labels[i] for i in selected_indices]
-            labels = [src_labels[i][main_label_index] for i in selected_indices]
-        else:
-            images = [Image.open(src_images[i]) for i in selected_indices]
-            if label_type == 'single_value':
-                labels = [src_labels[i] for i in selected_indices]
-            elif label_type == 'mask_image':
-                labels = [Image.open(src_labels[i]) for i in selected_indices]
-
-        if train_valid == 'train':
-            self.train_iterator[view] = iter
-        elif train_valid == 'valid':
-            self.valid_iterator[view] = iter
-        return images, labels
-
     def translate_random(self, imgs, labels, value=20):
         label_type = self.meta_data['label_type']
         method = self.meta_data['random_translate_method']
-        if self.meta_data['sequence_length'] != 1:
-            origh, origw, num_frames = imgs[0].shape
-        else:
-            origh, origw = imgs[0].shape
+        origh, origw, __ = imgs[0].shape
 
         for i in range(len(imgs)):
             if method == 'normal':
@@ -519,8 +508,6 @@ class DataHandler:
 
     def crop_random(self, imgs, labels, crop_width, crop_height, std_ratio=20):
         label_type = self.meta_data['label_type']
-
-        #todo: add true random translation, not just cropping a random window because this requires padded images
         origh, origw = imgs[0].shape
         if [origw, origh] == [crop_width, crop_height]:
             return imgs, labels
@@ -546,10 +533,7 @@ class DataHandler:
 
     def crop_middle(self, imgs, labels, crop_width, crop_height):
         label_type = self.meta_data['label_type']
-        if self.meta_data['sequence_length'] != 1:
-            origh, origw, num_frames = imgs[0].shape
-        else:
-            origh, origw = imgs[0].shape
+        origh, origw, __ = imgs[0].shape
 
         if [origw, origh] == [crop_width, crop_height]:
             return imgs, labels
@@ -562,12 +546,12 @@ class DataHandler:
             middleh - crop_height // 2:middleh + crop_height // 2]
             for im in imgs]
 
-        # for i in range(len(imgs)):
-        #     imgs[i] = self.crop(imgs[i], middlew, middleh, crop_width, crop_height)
-
         if label_type == 'mask_image':
-            raise NotImplementedError
-            # labels[i] = self.crop(labels[i], middlew, middleh, crop_width, crop_height)
+            labels = [
+                im[middlew - crop_width // 2:middlew + crop_width // 2,
+                middleh - crop_height // 2:middleh + crop_height // 2]
+                for im in labels]
+
 
         return imgs, labels
 
@@ -580,10 +564,7 @@ class DataHandler:
     def rotate_random(self, imgs, labels, value):
         label_type = self.meta_data['label_type']
         method = self.meta_data['random_rotate_method']
-        if self.meta_data['sequence_length'] != 1:
-            origh, origw, num_frames = imgs[0].shape
-        else:
-            origh, origw = imgs[0].shape
+        origh, origw, __ = imgs[0].shape
 
         #todo: added this during run. make sure it works!
         for i in range(len(imgs)):
@@ -626,10 +607,7 @@ class DataHandler:
 
     def resize(self, imgs, labels, width, height):
         label_type = self.meta_data['label_type']
-        if self.meta_data['sequence_length'] != 1:
-            origh, origw, num_frames = imgs[0].shape
-        else:
-            origh, origw, num_frames = imgs[0].shape
+        origh, origw, __ = imgs[0].shape
 
         if [origw, origh] == [width, height]:
             return imgs, labels

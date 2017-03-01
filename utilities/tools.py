@@ -23,6 +23,6 @@ def download_dataset(url, name):
 def unpickle(file):
     import _pickle as cPickle
     fo = open(file, 'rb')
-    dict = cPickle.load(fo, encoding='ascii')
+    dict = cPickle.load(fo, encoding='latin1')
     fo.close()
     return dict

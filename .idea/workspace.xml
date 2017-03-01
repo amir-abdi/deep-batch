@@ -2,50 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e509cbf9-ebae-4f33-a64e-955a16c65945" name="Default" comment="train on single frame for 7 views compele. &#10;reading cine and loading to memory complete.&#10;before adding lstm layers&#10;">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/utilities/tools.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/main_caffe_PSO_echonetx.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/main_caffe_echoQuality_7views.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/main_caffe_echoxnet.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/nets/caffe_echo_net_x.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/nets/caffe_echo_quality_7.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.13_5views_aLittleOverfit/networkDesign" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.14_5views_accForAllWrong/networkDesign" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.14_5views_allGood/networkDesign" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.14_6views_good/designNetwork" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.15_6views_200x200/networkDesign" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.16_6views_6views_good/networkDesign" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.18_6views_trainvalid/RootKerasModel_outputfile.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/accuracy.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test0" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test1" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test2" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test3" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test4" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test5" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/list_test6" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.22_6views_fixedTranslation/predictions.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/.~lock.groundT.csv#" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/.~lock.predictions.csv#" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/RootKerasModel_GT.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/RootKerasModel_accuracy.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/RootKerasModel_pred.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/accuracy_multi.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/boxplot.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/groundT_multi.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/predictions_multi.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/tensor_sizes" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.24_fine/groundT.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trained/__init__.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/main_keras_echo_7views.py" afterPath="$PROJECT_DIR$/main_keras_demo.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/nets/keras_echo_quality_7views.py" afterPath="$PROJECT_DIR$/nets/keras_demo_net.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/root_models/caffe/layers.py" afterPath="$PROJECT_DIR$/root_models/caffe/mylayers.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LICENSE" afterPath="$PROJECT_DIR$/LICENSE" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_caffe_demonet.py" afterPath="$PROJECT_DIR$/main_caffe_demonet.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_keras_demo.py" afterPath="$PROJECT_DIR$/main_keras_demo.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nets/caffe_demo_net.py" afterPath="$PROJECT_DIR$/nets/caffe_demo_net.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nets/keras_demo_net.py" afterPath="$PROJECT_DIR$/nets/keras_demo_net.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/root_models/RootModel.py" afterPath="$PROJECT_DIR$/root_models/RootModel.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py" afterPath="$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/root_models/keras/RootKerasModel.py" afterPath="$PROJECT_DIR$/root_models/keras/RootKerasModel.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utilities/datahandler.py" afterPath="$PROJECT_DIR$/utilities/datahandler.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utilities/draw.py" afterPath="$PROJECT_DIR$/utilities/draw.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utilities/tools.py" afterPath="$PROJECT_DIR$/utilities/tools.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -57,7 +25,8 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/caffe_framework$main_echoQuality_7views.coverage" NAME="main_echoQuality_7views Coverage Results" MODIFIED="1485231250053" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/caffe_framework$main_demonet.coverage" NAME="main_demonet Coverage Results" MODIFIED="1485228887395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/framework$main_caffe_demonet.coverage" NAME="main_caffe_demonet Coverage Results" MODIFIED="1488343623660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/framework$main_keras_demo.coverage" NAME="main_keras_demo Coverage Results" MODIFIED="1488405941144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/framework$main_caffe_demonet.coverage" NAME="main_caffe_demonet Coverage Results" MODIFIED="1488404060979" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/framework$main_keras.coverage" NAME="main_keras Coverage Results" MODIFIED="1488253123624" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -69,8 +38,8 @@
       <file leaf-file-name="caffe_demo_net.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/nets/caffe_demo_net.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="443">
-              <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -78,11 +47,65 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="main_keras_demo.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main_keras_demo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#65#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="keras_echo_quality_7views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/nets/keras_echo_quality_7views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1080">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main_keras_echo_7views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main_keras_echo_7views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="594">
+              <caret line="33" column="26" lean-forward="true" selection-start-line="33" selection-start-column="26" selection-end-line="33" selection-end-column="26" />
+              <folding>
+                <element signature="e#0#65#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="keras_demo_net.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/nets/keras_demo_net.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1404">
+              <caret line="33" column="21" lean-forward="true" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RootKerasModel.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/root_models/keras/RootKerasModel.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="234">
+              <caret line="17" column="29" lean-forward="false" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="main_caffe_demonet.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_caffe_demonet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="90">
+              <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -90,13 +113,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tools.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/utilities/tools.py">
+      <file leaf-file-name="RootCaffeModel.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+            <state relative-caret-position="492">
+              <caret line="62" column="61" lean-forward="false" selection-start-line="62" selection-start-column="61" selection-end-line="62" selection-end-column="61" />
               <folding>
-                <element signature="e#0#21#0" expanded="true" />
+                <element signature="e#0#40#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RootModel.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/root_models/RootModel.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="33" column="8" lean-forward="false" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -105,50 +140,8 @@
       <file leaf-file-name="draw.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utilities/draw.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="21" column="29" lean-forward="false" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RootCaffeModel.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="421">
-              <caret line="84" column="63" lean-forward="false" selection-start-line="84" selection-start-column="63" selection-end-line="84" selection-end-column="63" />
-              <folding>
-                <element signature="e#0#40#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="tools.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/caffe/examples/pycaffe/tools.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="119" column="0" lean-forward="false" selection-start-line="119" selection-start-column="0" selection-end-line="119" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="datahandler.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities/datahandler.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="248" column="46" lean-forward="false" selection-start-line="248" selection-start-column="46" selection-end-line="248" selection-end-column="46" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="keras_demo_net.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/nets/keras_demo_net.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+            <state relative-caret-position="73">
+              <caret line="10" column="15" lean-forward="false" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
               <folding />
             </state>
           </provider>
@@ -165,25 +158,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.test_ite</find>
-      <find>cine</find>
-      <find>read_patient_from_mat</find>
-      <find>get_bat</find>
-      <find>agg</find>
-      <find>trans</find>
-      <find>transl</find>
-      <find>translate</find>
-      <find>rotate_ra</find>
-      <find>main</find>
-      <find>test_data</find>
-      <find>activation</find>
-      <find>scale_label</find>
-      <find>multi</find>
-      <find>get_batch</find>
-      <find>write</find>
-      <find>inner</find>
-      <find>tools</find>
-      <find>delimi</find>
       <find>create_meta_data</find>
       <find>['model_variant']</find>
       <find>'display_iter'</find>
@@ -195,10 +169,36 @@
       <find>type</find>
       <find>solver_mo</find>
       <find>regul</find>
+      <find>label_</find>
+      <find>total_iter</find>
+      <find>get_solver</find>
+      <find>'train_intraclass_selection'</find>
+      <find>train_batch_method</find>
+      <find>'train_data_traversing'</find>
+      <find>'train_intraclass_batch_selection'</find>
+      <find>'train_interclass_batch_selection'</find>
+      <find>iterative</find>
+      <find>crop_random</find>
+      <find>set_data</find>
+      <find>gpu</find>
+      <find>soft</find>
+      <find>calculate</find>
+      <find>accuracy</find>
+      <find>range_views</find>
+      <find>range_v</find>
+      <find>stream_specific_scale_label</find>
+      <find>stream_specific scale_label</find>
     </findStrings>
     <replaceStrings>
       <replace>['sequence_length']</replace>
       <replace>'sequence_length'</replace>
+      <replace>'train_intraclass_batch_selection'</replace>
+      <replace>train_interclass_batch_selection</replace>
+      <replace>'train_data_traversing'</replace>
+      <replace>'data_traversing'</replace>
+      <replace>'train_interclass_batch_selection'</replace>
+      <replace>'interclass_batch_selection'</replace>
+      <replace>stream_specific_scale_label</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -215,20 +215,24 @@
         <option value="$PROJECT_DIR$/nets/__init__.py" />
         <option value="$PROJECT_DIR$/main_keras.py" />
         <option value="$PROJECT_DIR$/root_models/__init__.py" />
-        <option value="$PROJECT_DIR$/utilities/draw.py" />
         <option value="$PROJECT_DIR$/utilities/__init__.py" />
         <option value="$USER_HOME$/caffe/python/caffe/__init__.py" />
         <option value="$PROJECT_DIR$/LICENSE" />
-        <option value="$PROJECT_DIR$/root_models/RootModel.py" />
         <option value="$PROJECT_DIR$/nets/keras_demo_multistream_net.py" />
-        <option value="$PROJECT_DIR$/nets/keras_echo_quality_7views.py" />
         <option value="$PROJECT_DIR$/trained/RootKerasModel/snapshots/train_2017.2.16_6views_6views_good/networkDesign" />
-        <option value="$PROJECT_DIR$/nets/caffe_demo_net.py" />
-        <option value="$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py" />
-        <option value="$PROJECT_DIR$/utilities/datahandler.py" />
-        <option value="$PROJECT_DIR$/nets/keras_demo_net.py" />
-        <option value="$PROJECT_DIR$/main_caffe_demonet.py" />
         <option value="$PROJECT_DIR$/utilities/tools.py" />
+        <option value="$PROJECT_DIR$/utilities/datahandler.py" />
+        <option value="$PROJECT_DIR$/root_models/caffe/mylayers.py" />
+        <option value="$PROJECT_DIR$/utilities/draw.py" />
+        <option value="$PROJECT_DIR$/root_models/keras/RootKerasModel.py" />
+        <option value="$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py" />
+        <option value="$PROJECT_DIR$/root_models/RootModel.py" />
+        <option value="$PROJECT_DIR$/nets/caffe_demo_net.py" />
+        <option value="$PROJECT_DIR$/nets/keras_echo_quality_7views.py" />
+        <option value="$PROJECT_DIR$/main_caffe_demonet.py" />
+        <option value="$PROJECT_DIR$/main_keras_echo_7views.py" />
+        <option value="$PROJECT_DIR$/nets/keras_demo_net.py" />
+        <option value="$PROJECT_DIR$/main_keras_demo.py" />
       </list>
     </option>
   </component>
@@ -286,6 +290,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="utilities" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="framework" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="framework" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="trained" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -376,7 +394,7 @@
       <recent name="$PROJECT_DIR$/root_models" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_caffe_demonet">
+  <component name="RunManager" selected="Python.main_keras_demo">
     <configuration default="false" name="main_echoQuality_7views" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -427,6 +445,24 @@
       <module name="framework" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_caffe_demonet.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="main_keras_demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="framework" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_keras_demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -645,16 +681,18 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
-    <list size="3">
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="Python.main_echoQuality_7views" />
       <item index="1" class="java.lang.String" itemvalue="Python.main_keras" />
       <item index="2" class="java.lang.String" itemvalue="Python.main_caffe_demonet" />
+      <item index="3" class="java.lang.String" itemvalue="Python.main_keras_demo" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.main_caffe_demonet" />
-        <item index="1" class="java.lang.String" itemvalue="Python.main_keras" />
-        <item index="2" class="java.lang.String" itemvalue="Python.main_echoQuality_7views" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python.main_keras_demo" />
+        <item index="1" class="java.lang.String" itemvalue="Python.main_caffe_demonet" />
+        <item index="2" class="java.lang.String" itemvalue="Python.main_keras" />
+        <item index="3" class="java.lang.String" itemvalue="Python.main_echoQuality_7views" />
       </list>
     </recent_temporary>
   </component>
@@ -673,20 +711,20 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20475927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20475927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.616025" sideWeight="0.5019305" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.11251315" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21240799" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298647" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280757" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3280757" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280757" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3869611" sideWeight="0.4980695" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32176656" sideWeight="0.4980695" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -709,6 +747,13 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/nets/caffe_echo_net_x.py</url>
+          <line>142</line>
+          <option name="timeStamp" value="200" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -719,15 +764,11 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="179" />
+      <option name="time" value="213" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/trained/EchoNet7/solver.prototxt" />
-    <entry file="file://$PROJECT_DIR$/trained/EchoXNetModel/solver.prototxt" />
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/keras/layers/pooling.py" />
-    <entry file="file:///usr/local/lib/python3.5/dist-packages/keras/engine/training.py" />
     <entry file="file:///usr/lib/python3.5/json/encoder.py" />
     <entry file="file://$PROJECT_DIR$/lstm_resnet_cardiac_caption.py" />
     <entry file="file://$PROJECT_DIR$/nets/caffe_echo_quality_7.py">
@@ -776,20 +817,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="678" column="45" lean-forward="false" selection-start-line="678" selection-start-column="40" selection-end-line="678" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main_keras_echo_7views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="590">
-          <caret line="49" column="18" lean-forward="false" selection-start-line="49" selection-start-column="18" selection-end-line="49" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/root_models/caffe/layers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="23" column="115" lean-forward="false" selection-start-line="23" selection-start-column="115" selection-end-line="23" selection-end-column="115" />
         </state>
       </provider>
     </entry>
@@ -876,34 +903,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/root_models/keras/RootKerasModel.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sandbox/echo_net2/echo_net2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="44" column="33" lean-forward="true" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main_keras_demo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="16" column="10" lean-forward="false" selection-start-line="16" selection-start-column="10" selection-end-line="16" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nets/keras_echo_quality_7views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="55" column="69" lean-forward="true" selection-start-line="55" selection-start-column="69" selection-end-line="55" selection-end-column="69" />
           <folding />
         </state>
       </provider>
@@ -940,24 +943,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/nets/keras_demo_multistream_net.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="83" column="12" lean-forward="false" selection-start-line="83" selection-start-column="12" selection-end-line="83" selection-end-column="12" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/root_models/RootModel.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="385">
-          <caret line="80" column="119" lean-forward="false" selection-start-line="80" selection-start-column="119" selection-end-line="80" selection-end-column="119" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/caffe/examples/pycaffe/tools.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="407">
@@ -966,54 +951,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="421">
-          <caret line="84" column="63" lean-forward="false" selection-start-line="84" selection-start-column="63" selection-end-line="84" selection-end-column="63" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nets/keras_demo_net.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nets/caffe_demo_net.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="443">
-          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3.5/urllib/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/draw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="21" column="29" lean-forward="false" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/datahandler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="248" column="46" lean-forward="false" selection-start-line="248" selection-start-column="46" selection-end-line="248" selection-end-column="46" />
           <folding />
         </state>
       </provider>
@@ -1026,22 +967,164 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_caffe_demonet.py">
+    <entry file="file://$PROJECT_DIR$/utilities/tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="25" column="44" lean-forward="false" selection-start-line="25" selection-start-column="44" selection-end-line="25" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#21#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/scipy/io/matlab/mio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="35" column="0" lean-forward="false" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2016.3/system/python_stubs/-1247971764/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
-          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <caret line="5193" column="8" lean-forward="false" selection-start-line="5193" selection-start-column="8" selection-end-line="5193" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/datahandler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="73" column="42" lean-forward="true" selection-start-line="73" selection-start-column="42" selection-end-line="73" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/root_models/caffe/mylayers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="20" lean-forward="true" selection-start-line="0" selection-start-column="20" selection-end-line="0" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/caffe/python/caffe/net_spec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1710">
+          <caret line="7" column="23" lean-forward="false" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nets/caffe_echo_net_x.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="138" column="33" lean-forward="true" selection-start-line="138" selection-start-column="33" selection-end-line="138" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/root_models/keras/RootKerasModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="17" column="29" lean-forward="false" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/root_models/caffe/RootCaffeModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="492">
+          <caret line="62" column="61" lean-forward="false" selection-start-line="62" selection-start-column="61" selection-end-line="62" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utilities/draw.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="73">
+          <caret line="10" column="15" lean-forward="false" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nets/keras_demo_multistream_net.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="19" column="4" lean-forward="true" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nets/keras_echo_quality_7views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1080">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nets/caffe_demo_net.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/root_models/RootModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="33" column="8" lean-forward="false" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main_caffe_demonet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/tools.py">
+    <entry file="file://$PROJECT_DIR$/main_keras_echo_7views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="33" column="26" lean-forward="true" selection-start-line="33" selection-start-column="26" selection-end-line="33" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nets/keras_demo_net.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1404">
+          <caret line="33" column="21" lean-forward="true" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main_keras_demo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding>
-            <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#0#65#0" expanded="true" />
           </folding>
         </state>
       </provider>

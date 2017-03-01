@@ -1,50 +1,25 @@
-from nets.keras_echo_quality_7views import KerasEchoQuality7Views
+from nets.keras_demo_net import KerasDemoMultiStreamRegressionNet
+from keras.datasets import cifar10
 import numpy as np
-import sys
-sys.path.append('/home/amir/keras/keras/layers')
-sys.path.append('/home/amir/keras/keras/build/lib/layers')
 
 
-# ------------------- load data list files ---------------------------
-list_files_folder = '/home/amir/echoData/7views_cine/list_files/'
-# list_files_folder  = '/home/amir/echoProject/TMI/file_lists/'
-list_train_str = list_files_folder + 'list_train'
-list_valid_str = list_files_folder + 'list_valid'
-list_test_str = list_files_folder + 'list_test'
-list_trainvalid_str = list_files_folder + 'list_trainvalid'
-
-views = ['AP2', 'AP3', 'AP4', 'PLAX', 'PSAX(A)', 'PSAX(M)', 'PSAX(PM)']
-range_views = np.array([8, 7, 10, 12, 4, 7, 5])
-
-list_train = []
-list_valid = []
-list_test = []
-list_trainvalid = []
-
-# list_train.append(list_train_str)
-# list_valid.append(list_valid_str)
-
-selected_views = [0, 1, 2, 4, 6]  # range(0, 7) #  removed PLAX and PSAX(M)  - 3 and 5
-for i in selected_views:
-    list_train.append(list_train_str + str(i))
-    # list_valid.append(list_valid_str + str(i))
-    list_valid.append(None)
-    list_test.append(list_test_str + str(i))
-    list_trainvalid.append(list_trainvalid_str + str(i))
-
-external_dict = {'range_views': range_views[list(selected_views)]}
-# --------------------------------------------------------------------
 
 if __name__ == "__main__":
-    model = KerasEchoQuality7Views(external_dict)
-    model.set_data(train_list_file=list_trainvalid, valid_list_file=list_valid)
+    # This is the cifar10 dataset being treated as a hypothetical sequential dataset with 3 frames per each sample.
+    # The RGB channels of cifar images are being recognized as consecutive greyscale frames
+
+    data = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
+    (X_train, y_train), (X_valid, y_valid) = cifar10.load_data()
+    total = X_train.shape[0] / 1000
+    for stream in range(4):
+        lower = int(np.floor(stream * total / 4))
+        upper = int(np.floor((stream + 1) * total / 4))
+        data[0][stream] = X_train[lower:upper]
+        data[1][stream] = y_train[lower:upper]
+        data[2][stream] = X_valid[lower:upper]
+        data[3][stream] = y_valid[lower:upper]
+
+    model = KerasDemoMultiStreamRegressionNet()
+    model.set_trainvalid_data(data=data)
     model.set_solver()
     validation_accuracy = model.train_validate()
-
-if __name__ == "__main__":  # test
-    model = KerasEchoQuality7Views(external_dict)
-    # weight_file = 'trained/RootKerasModel/snapshots/RootKerasModel_last.kerasmodel'
-    weight_file = '/home/amir/framework/trained/RootKerasModel/snapshots/train_2017.2.24_MICCAI2017/RootKerasModel_best.kerasmodel'
-    model.set_test_data(test_list_file=list_test)
-    accuracy = model.evaluate(weight_file)
-    print("done.")

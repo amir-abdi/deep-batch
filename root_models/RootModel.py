@@ -2,10 +2,10 @@ import json
 import os
 import os.path as osp
 from abc import ABCMeta, abstractmethod
-import numpy as np
 from utilities.datahandler import DataHandler
 from utilities import directory_settings
 from utilities import constants as c
+from utilities.draw import *
 import matplotlib.pyplot as plt
 
 
@@ -37,38 +37,36 @@ class RootModel:
         self.meta_data.update({'cine_selection_if_not_multi': 'first'})
         self.data_handler.set_test_data(self.meta_data)
         test_size = self.data_handler.get_testset_size()
-        self.number_of_views = self.data_handler.get_num_views()
-        self.meta_data.update({'batch_size': self.number_of_views})
+        self.num_streams = self.data_handler.get_num_views()
+        self.meta_data.update({'batch_size': self.num_streams})
         batch_size = self.meta_data['batch_size']
         self.nb_batches_test = test_size  # int(np.round(test_size / batch_size))
 
-    def set_data(self,
-                 train_list_file=None,
-                 valid_list_file=None,
-                 train_folder=None,
-                 valid_folder=None,
-                 # test_list_file=None,
-                 # test_folder=None,
-                 data=None, delimeter=' '):
+    def set_trainvalid_data(self,
+                            train_list_file=None,
+                            valid_list_file=None,
+                            train_folder=None,
+                            valid_folder=None,
+                            data=None):
 
-        self.meta_data.update({  'train_list': train_list_file,
-                                    'train_folder': train_folder,
-                                    'valid_list': valid_list_file,
-                                    'valid_folder': valid_folder
-                                    # 'test_list_file': test_list_file,
-                                    # 'test_folder': test_folder
-                                    })
+        self.meta_data.update({'train_list': train_list_file,
+                                'train_folder': train_folder,
+                                'valid_list': valid_list_file,
+                                'valid_folder': valid_folder})
+        if data is not None:
+            self.meta_data['load_to_memory'] = True
         print('Load all data to memory: ', self.meta_data['load_to_memory'])
         self.data_handler.set_data(data, self.meta_data)
+
         batch_size = self.meta_data['batch_size']
         train_size, valid_size = self.data_handler.get_dataset_size()
         self.nb_batches_train = int(np.round(train_size / batch_size))
         self.nb_batches_valid = int(np.round(valid_size / batch_size))
-        self.number_of_views = self.data_handler.get_num_views()
+        self.num_streams = self.data_handler.get_num_views()
 
     def get_meta_data(self):
         if self.meta_data is None:
-            self.meta_data = self.create_meta_data()
+            self.meta_data = self.init_meta_data()
             if self.external_meta_data is not None:
                 self.meta_data.update(self.external_meta_data)
             self.meta_data.update(self.root_level_meta_data())
@@ -127,7 +125,7 @@ class RootModel:
         if max_epoch is not None and self.epoch >= max_epoch:
             print('max epoch reached')
             return True
-        if self.epoch < min_epoch:
+        if self.epoch < min_epoch or self.epoch < 2*window_w:
             return False
         new_accuracy = np.mean(self.training_history[-window_w:         -1][c.VAL_ACCURACY])
         old_accuracy = np.mean(self.training_history[-2*window_w:-window_w-1][c.VAL_ACCURACY])
@@ -186,7 +184,7 @@ class RootModel:
     def save_show_plot_history(self, current_epoch):
         self.training_history.append(current_epoch)
         np.save(self.write_filename + '_history', np.asarray(self.training_history))
-        myUtils.plot_show(np.asarray(self.training_history), num_extra=self.number_of_views)
+        plot_training_history(np.asarray(self.training_history), num_streams=self.num_streams)
         plt.savefig(self.write_filename + '.png')
 
     def save_state(self, training_state):
@@ -264,7 +262,7 @@ class RootModel:
         pass
 
     @abstractmethod
-    def create_meta_data(self):
+    def init_meta_data(self):
         pass
 
     @abstractmethod
@@ -278,3 +276,8 @@ class RootModel:
     @abstractmethod
     def write_snapshot(self, solver, type_str):
         pass
+
+    @abstractmethod
+    def get_solver(self):
+        pass
+

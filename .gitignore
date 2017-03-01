@@ -109,3 +109,4 @@ ENV/
 #mine and private
 sandbox
 trained/
+data/
