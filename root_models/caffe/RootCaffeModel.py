@@ -1,28 +1,17 @@
-import socket
-import datahandler
-import os
+from utilities import directory_settings
 import os.path as osp
-import numpy as np
-import matplotlib.pyplot as plt
-import directory_settings as s
-import constants as c
-import myUtils
-
-from layers import *
-
-# sys.path.append(s.caffe_root + 'python')
+import sys
+sys.path.append(directory_settings.caffe_root + 'examples/pycaffe/layers')  # the data layers folder
+sys.path.append(directory_settings.caffe_root + 'examples/pycaffe')  # the tools folder
 import caffe
-from caffe import layers as L
-# sys.path.append(s.caffe_root + "examples/pycaffe/layers")
-# sys.path.append(s.caffe_root + "examples/pycaffe")
 import tools
+
+from root_models.caffe.layers import *
 caffe.set_mode_gpu()
 caffe.set_device(0)
-import datahandler
 
-import json
 from abc import ABCMeta, abstractmethod
-from RootModel import RootModel
+from root_models.RootModel import RootModel
 
 
 class RootCaffeModel(RootModel):

@@ -1,2 +1,0 @@
-views = ['AP2', 'AP3', 'AP4', 'PLAX', 'PSAX(A)', 'PSAX(M)', 'PSAX(PM)']
-range_views = np.array([8, 7, 10, 12, 5, 7, 6])

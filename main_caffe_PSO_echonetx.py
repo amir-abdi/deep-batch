@@ -2,7 +2,7 @@
 import sys
 
 print sys.path
-from datahandler import DataHandler
+from utilities.datahandler import DataHandler
 import optunity.solvers.solver_registry
 import json
 

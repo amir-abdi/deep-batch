@@ -1,11 +1,10 @@
 import math
 
 import numpy as np
-from caffe import layers as L
 
-import constants as c
-from layers import *
-from RootCaffeModel import RootCaffeModel
+from root_models.caffe.RootCaffeModel import RootCaffeModel
+from root_models.caffe.layers import *
+from utilities import constants as c
 
 
 class DemoNetModel(RootCaffeModel):
@@ -109,7 +108,7 @@ class DemoNetModel(RootCaffeModel):
         self.total_training_iteration = self.training_state['total_iterations']
 
         while not self.is_end_training():
-            print "=" * 80
+            print("=" * 80)
             self.current_epoch_history = np.zeros(4)
 
             #training epoch loop
@@ -160,10 +159,10 @@ class DemoNetModel(RootCaffeModel):
                     self.current_epoch_history[c.VAL_LOSS] += (loss_batch / nb_batches_valid)
                     self.print_valid_iteration(validi, loss_batch)
 
-                print "End of Validation\n", "-" * 80
+                print("End of Validation\n", "-" * 80)
                 self.update_training_state_validation()
 
-            print "End of Training Epoch\n", "-" * 80
+            print("End of Training Epoch\n", "-" * 80)
             self.update_training_state_training()
             self.snapshot_handler(solver, self.training_state)  # needs to be before epoch update to keep track of 'best_validation'
 

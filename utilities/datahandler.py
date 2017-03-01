@@ -1,15 +1,12 @@
-# import SimpleITK as sitk
-from datashape.coretypes import float32
-import directory_settings as s
-import numpy as np
-from PIL import Image
-import os
-import glob
-from sklearn.model_selection import train_test_split
-import cv2
-import scipy.io as sio
 import gc
-import matplotlib.pyplot as plt
+import glob
+import os
+import cv2
+import numpy as np
+import scipy.io as sio
+from PIL import Image
+from sklearn.model_selection import train_test_split
+
 
 class DataHandler:
     def __init__(self):
@@ -50,7 +47,10 @@ class DataHandler:
         return (data_batch, label_batch)
 
     def scale_label(self, labels, view_ranges, current_view):
-        return [l/view_ranges[current_view] for l in labels]
+        temp = [l/view_ranges[current_view] for l in labels]
+        # some values were above 1
+        temp = [label if label <= 1 else 1 for label in temp]
+        return temp
 
     def match_TensorFlow_shape(self, imgs):
         # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
@@ -233,6 +233,7 @@ class DataHandler:
     def read_data_from_list_file(self, list_file):
         delimiter = self.meta_data['delimiter']
         load_to_memory = self.meta_data['load_to_memory']
+        multi_cine_per_patient = self.meta_data['multi_cine_per_patient']
         file_format = self.meta_data['file_format']
         num_frames = self.meta_data['num_frames']
         images = []
@@ -255,7 +256,7 @@ class DataHandler:
                 if os.path.isfile(file_dir):
                     if load_to_memory:
                         if file_format == 'mat':
-                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=True)
+                            cines = self.read_patient_from_mat(file_dir, multi_cine_per_patient=multi_cine_per_patient)
                             images.extend(cines)
                             for i in range(len(cines)):
                                 labels.append(label)
@@ -310,8 +311,12 @@ class DataHandler:
         return train_size, valid_size
 
     def get_testset_size(self):
-        test_size = sum(len(l) for l in self.test_labels)
+        # test_size = sum(len(l) for l in self.test_labels)
+        test_size = max(len(l) for l in self.test_labels)
         return test_size
+
+    def get_testset_size_per_view(self):
+        return [len(l) for l in self.test_labels]
 
     def get_num_views(self):
         if self.train_labels is not None:
@@ -413,6 +418,7 @@ class DataHandler:
         return batch_images, batch_labels
 
     def read_patient_from_mat(self, file, multi_cine_per_patient=False):
+        cine_selection_if_not_multi = self.meta_data['cine_selection_if_not_multi']
         num_frames = self.meta_data['num_frames']
         matfile = sio.loadmat(file)
         cine = matfile['Patient']['DicomImage'][0][0]  # todo: generalize this
@@ -428,10 +434,12 @@ class DataHandler:
                     cines.append(np.copy(temp_cine))
                     i += num_frames
             else:
-                # choose one random sequence of num_frames length
-                from random import randint
-                i = randint(0, cine.shape[2] - num_frames)
-                cines.append(np.copy(cine[:, :, i:i+num_frames]))
+                if cine_selection_if_not_multi == 'random':  # choose one random sequence of num_frames length
+                    from random import randint
+                    i = randint(0, cine.shape[2] - num_frames)
+                elif cine_selection_if_not_multi == 'first':  # choose the first cine sequence
+                    i = 0
+                cines.append(np.copy(cine[:, :, i:i + num_frames]))
         elif cine.shape[2] < num_frames:
             # cycle over
             # cine = np.resize(cine, (cine.shape[0], cine.shape[1], num_frames))

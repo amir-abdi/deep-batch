@@ -1,11 +1,14 @@
 # import matplotlib
 # matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import constants as c
 import glob
+
+import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_show(data, block=False, num_extra=0):
+from utilities import constants as c
+
+
+def plot_training_history(data, block=False, num_extra=0):
     # l1 = plt.plot(data[:, c.TRAIN_LOSS], 'b')
     plt.close()
     l2 = plt.plot(data[1:, c.TRAIN_ACCURACY], 'k', label='TrainAcc')
@@ -44,6 +47,6 @@ if __name__ == "__main__":
         print(file)
         if filter in file:
             t = np.load(file)
-            plot_show(t, True)
+            plot_training_history(t, True)
 
 

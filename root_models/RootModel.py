@@ -1,15 +1,13 @@
-from datahandler import DataHandler
+import json
 import os
-import directory_settings as s
 import os.path as osp
 from abc import ABCMeta, abstractmethod
-import json
-import myUtils
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
+from utilities.datahandler import DataHandler
+from utilities import directory_settings
+from utilities import constants as c
 import matplotlib.pyplot as plt
-import constants as c
+
 
 class RootModel:
     __metaclass__ = ABCMeta
@@ -26,7 +24,7 @@ class RootModel:
         self.init_training_state()
 
     def set_directories(self):
-        self.model_dir = s.framework_root + 'models/' + self.__class__.__name__ + '/'
+        self.model_dir = directory_settings.framework_root + 'trained/' + self.__class__.__name__ + '/'
         self.snapshot_dir = osp.join(self.model_dir, 'snapshots/')
         if not os.path.isdir(self.model_dir):
             os.makedirs(self.model_dir)
@@ -35,12 +33,14 @@ class RootModel:
 
     def set_test_data(self, test_list_file=None):
         self.meta_data.update({'test_list_file': test_list_file})
+        self.meta_data.update({'multi_cine_per_patient': False})
+        self.meta_data.update({'cine_selection_if_not_multi': 'first'})
         self.data_handler.set_test_data(self.meta_data)
         test_size = self.data_handler.get_testset_size()
         self.number_of_views = self.data_handler.get_num_views()
         self.meta_data.update({'batch_size': self.number_of_views})
         batch_size = self.meta_data['batch_size']
-        self.nb_batches_test = int(np.round(test_size / batch_size))
+        self.nb_batches_test = test_size  # int(np.round(test_size / batch_size))
 
     def set_data(self,
                  train_list_file=None,

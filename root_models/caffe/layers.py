@@ -1,5 +1,7 @@
 import sys
-import directory_settings as s
+
+from utilities import directory_settings as s
+
 sys.path.append(s.caffe_root + 'python')
 from caffe import layers as L
 from caffe import params as P

@@ -1,12 +1,10 @@
 import math
-# from __builtin__ import setattr
 
 import numpy as np
-from caffe import layers as L
 
-import constants as c
-from layers import *
-from RootCaffeModel import RootCaffeModel
+from root_models.caffe.RootCaffeModel import RootCaffeModel
+from root_models.caffe.layers import *
+from utilities import constants as c
 
 num_views = 7
 
