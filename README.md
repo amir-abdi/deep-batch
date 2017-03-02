@@ -1,6 +1,6 @@
 # Deep Batch: Deep Learning python wrapper for data handling [Caffe and Keras]
 
-Our main motivation for developing the framework, is to deal with datasets where training data is not uniformly distributed among classes[values], both in generative and discriminative models. To mitigate this problem, we have developed a DataHanlder which holds label maps of the training set and generates mini-batches, on-the-fly, which holds equal (semi-equal) number of samples from each class[value].
+Our main motivation for developing the framework, is to deal with datasets where training data is not uniformly distributed among classes[values], both in generative and discriminative models. To mitigate this problem, we have developed a DataHanlder which holds label maps of the training set and **generates mini-batches, on-the-fly, which holds equal (semi-equal) number of samples for each class[value]**. As a result, from the models point of view, data is **uniformly** distributed among labels.
 
 The given framework provides the following functionalities:
 - Reading data using a list_file index
