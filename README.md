@@ -71,6 +71,7 @@ Deep Batch depends on the following libraries:
 - sklearn
 - matplotlib
 - json
+- PIL (Python Imaging Library)
 
 ### Limitations
 - So far, we have only developed for the TensorFlow backend of Keras.
