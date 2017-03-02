@@ -320,11 +320,8 @@ class DataHandler:
                     assert False
         return images, labels
 
-    def create_label_map(self, labels, main_label_index=0):
-        # if self.meta_data['multi_stream']:
-        number_of_streams = len(labels)
-        # else:
-        #     number_of_streams = 1
+    def create_label_map(self, labels, main_label_index=0):        
+        number_of_streams = len(labels)        
         labels_map = []
         label_headers = []
         for stream in range(number_of_streams):
@@ -406,10 +403,6 @@ class DataHandler:
                     for i in range(len(selected_classes)):
                         index = np.random.randint(len(label_map[selected_classes[i]]))
                         selected_indices.extend([label_map[selected_classes[i]][index]])
-
-
-
-
             else:
                 assert False
         elif data_traversing == 'iterative':
@@ -423,30 +416,24 @@ class DataHandler:
                 self.valid_iterator[stream_index] = iter
             elif train_valid == 'test':
                 self.test_iterator[stream_index] = iter
-
-        # print("view: {}".format(view), "  iter: {}".format(iter))
-
+                
         batch_images = []
         batch_labels = []
         if load_to_memory:
             batch_images = [images[i] for i in selected_indices]
             batch_labels = [labels[i][main_label_index] for i in selected_indices]
-        else:
-            # images = [Image.open(src_images[i]).load() for i in selected_indices]
+        else:            
             for i in selected_indices:
                 if self.meta_data['file_format'] == 'image':
                     im = cv2.imread(images[i], 0)
-                    batch_images.append(im)
-                    # batch_images.append(Image.open(images[i]))
-                    # batch_images[-1].load()
+                    batch_images.append(im)                    
                 elif self.meta_data['file_format'] == 'mat':
                     cines = self.read_patient_from_mat(images[i], multi_cine_per_patient=False)
                     batch_images.extend(cines)  # todo: read entire cine
                     # print('Number of frames = ', str(cines[0].shape[2]))
             if label_type == 'single_value':
                 batch_labels = [labels[i][main_label_index] for i in selected_indices]
-            elif label_type == 'mask_image':
-                # labels = [Image.open(src_labels[i]) for i in selected_indices]
+            elif label_type == 'mask_image':                
                 for i in selected_indices:
                     batch_labels.append(Image.open(labels[i]))
                     batch_labels[-1].load()
@@ -476,8 +463,7 @@ class DataHandler:
                     i = 0
                 cines.append(np.copy(cine[:, :, i:i + num_frames]))
         elif cine.shape[2] < num_frames:
-            # cycle over
-            # cine = np.resize(cine, (cine.shape[0], cine.shape[1], num_frames))
+            # cycle over            
             cine = np.concatenate((cine, cine[:, :, :num_frames-cine.shape[2]]), axis=2)
             cines.append(np.copy(cine))
         gc.collect()
@@ -567,9 +553,7 @@ class DataHandler:
     def rotate_random(self, imgs, labels, value):
         label_type = self.meta_data['label_type']
         method = self.meta_data['random_rotate_method']
-        origh, origw, __ = imgs[0].shape
-
-        #todo: added this during run. make sure it works!
+        origh, origw, __ = imgs[0].shape        
         for i in range(len(imgs)):
             if method == 'uniform':
                 rot_degree = np.round(np.random.uniform(-value, value))
@@ -580,12 +564,11 @@ class DataHandler:
                rot_degree = np.sign(rot_degree)*2 * value
 
             M = cv2.getRotationMatrix2D((origw / 2, origh / 2), rot_degree, 1)
-            imgs[i] = cv2.warpAffine(imgs[i] , M, (origw, origh))
-            # imgs[i] = imgs[i].rotate(rot_degree)
+            imgs[i] = cv2.warpAffine(imgs[i] , M, (origw, origh))           
 
             # todo: implement rotation for mask image
-            # if label_type == 'mask_image':
-            #     labels[i] = labels[i].rotate(rot_degree)
+            if label_type == 'mask_image':
+                raise NotImplementedError
         return imgs, labels
 
     def convert_to_npArray(self, input_imgs, input_labels, scale_to_1=False):
@@ -611,36 +594,11 @@ class DataHandler:
     def resize(self, imgs, labels, width, height):
         label_type = self.meta_data['label_type']
         origh, origw, __ = imgs[0].shape
-
         if [origw, origh] == [width, height]:
             return imgs, labels
-
         imgs = [cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC) for image in imgs]
-        # imgs = [image.resize((width, height), Image.BILINEAR) for image in imgs]
-
+        
         # todo: implemnt image_mask resize
-        # if label_type == 'image_mask':
-        #     labels = [label.resize((width, height), Image.BILINEAR) for label in labels]
-            # for label in labels:
-            #     label = label.resize((width, height), Image.BILINEAR)
+        if label_type == 'image_mask':
+            raise NotImplementedError
         return imgs, labels
-
-# def memory_usage_resource(self):
-    #     import resource
-    #     import sys
-    #     rusage_denom = 1024.
-    #     if sys.platform == 'darwin':
-    #         # ... it seems that in OSX the output is different units ...
-    #         rusage_denom = rusage_denom * rusage_denom
-    #     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / rusage_denom
-    #     return mem
-    #
-    # def memory_usage_ps(self):
-    #     import subprocess
-    #     out = subprocess.Popen(['ps', 'v', '-p', str(os.getpid())],
-    #                            stdout=subprocess.PIPE).communicate()[0].split(b'\n')
-    #     vsz_index = out[0].split().index(b'RSS')
-    #     mem = float(out[1].split()[vsz_index]) / 1024
-    #     return mem
-
-    #todo: add random scaling
