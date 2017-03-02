@@ -15,4 +15,3 @@ if __name__ == "__main__":
     model.set_trainvalid_data(data=data)
     model.set_solver()
     validation_accuracy = model.train_validate()
-
