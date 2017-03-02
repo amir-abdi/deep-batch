@@ -5,8 +5,11 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    # This is the cifar10 dataset being treated as a hypothetical sequential dataset with 3 frames per each sample.
-    # The RGB channels of cifar images are being recognized as consecutive greyscale frames
+    # This is the cifar10 dataset being treated as a **hypothetical** sequential dataset with 3 frames per each sample.
+    # The RGB channels of cifar images are being considered, wrongly, as consecutive greyscale frames.
+    # The data is being partitioned into four subsets and are considered as four different input/output streams of a 
+    # multi-stream network. This is again to demonstrate the frameworks capability to handle multi-stream (multi-input
+    # and multi-output) datasets.
 
     data = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
     (X_train, y_train), (X_valid, y_valid) = cifar10.load_data()
