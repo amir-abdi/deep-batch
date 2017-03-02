@@ -84,6 +84,9 @@ class DataHandler:
                 pass
         return imgs
 
+    def match_Theano_shape(self, imgs):
+        raise NotImplementedError
+    
     def match_TensorFlow_shape(self, imgs):
         # For 3D data, "tf" assumes (conv_dim1, conv_dim2, conv_dim3, channels)
         # while "th" assumes  (channels, conv_dim1, conv_dim2, conv_dim3).
